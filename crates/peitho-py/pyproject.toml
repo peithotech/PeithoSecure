@@ -1,0 +1,24 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "peithosecure"
+version = "0.1.0"
+description = "Post-quantum capability delegation and zero-trust security framework for AI agents"
+readme = "../../README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [{ name = "PeithoSecure Team" }]
+keywords = ["post-quantum", "ai-agents", "security", "mcp", "zero-trust", "capabilities"]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security :: Cryptography",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "peitho._peitho_core"

@@ -1,0 +1,84 @@
+//! High-speed thread-safe in-memory token revocation registry (<1µs lookup).
+
+use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
+
+/// Metadata stored alongside a revoked token record.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RevocationRecord {
+    /// Timestamp when revocation was registered.
+    pub revoked_at: u64,
+    /// Human-readable or security reason code for revocation.
+    pub reason: String,
+    /// Original token expiration timestamp for automatic pruning.
+    pub expires_at: u64,
+}
+
+/// A thread-safe, high-speed in-memory revocation registry.
+#[derive(Clone, Debug, Default)]
+pub struct RevocationRegistry {
+    entries: Arc<RwLock<HashMap<String, RevocationRecord>>>,
+}
+
+impl RevocationRegistry {
+    /// Create a new empty revocation registry.
+    pub fn new() -> Self {
+        Self {
+            entries: Arc::new(RwLock::new(HashMap::new())),
+        }
+    }
+
+    /// Revoke a token ID with a specific reason and expiration timestamp.
+    pub fn revoke(&self, token_id: impl Into<String>, reason: impl Into<String>, expires_at: u64, current_time: u64) {
+        let mut map = match self.entries.write() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        map.insert(
+            token_id.into(),
+            RevocationRecord {
+                revoked_at: current_time,
+                reason: reason.into(),
+                expires_at,
+            },
+        );
+    }
+
+    /// Check if a token ID has been revoked (sub-microsecond O(1) lookup).
+    pub fn is_revoked(&self, token_id: &str) -> bool {
+        let map = match self.entries.read() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        map.contains_key(token_id)
+    }
+
+    /// Retrieve the revocation reason if revoked.
+    pub fn get_revocation_reason(&self, token_id: &str) -> Option<String> {
+        let map = match self.entries.read() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        map.get(token_id).map(|r| r.reason.clone())
+    }
+
+    /// Prune expired entries to maintain a compact in-memory footprint.
+    pub fn prune_expired(&self, current_time: u64) -> usize {
+        let mut map = match self.entries.write() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        let initial_len = map.len();
+        map.retain(|_, record| record.expires_at > current_time);
+        initial_len - map.len()
+    }
+
+    /// Total count of active revocation records.
+    pub fn count(&self) -> usize {
+        let map = match self.entries.read() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        map.len()
+    }
+}

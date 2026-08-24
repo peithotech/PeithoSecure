@@ -1,0 +1,23 @@
+[package]
+name = "peitho-token"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "High-performance post-quantum capability tokens and attenuation engine for AI agents"
+
+[dependencies]
+peitho-core = { path = "../peitho-core" }
+thiserror = { workspace = true }
+serde = { workspace = true }
+postcard = { workspace = true }
+subtle = { workspace = true }
+sha3 = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "agent_swarm_bench"
+harness = false

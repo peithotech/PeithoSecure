@@ -1,0 +1,19 @@
+[package]
+name = "peitho-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "High-performance Model Context Protocol (MCP) post-quantum security gateway and tool shield"
+
+[dependencies]
+peitho-core = { path = "../peitho-core" }
+peitho-token = { path = "../peitho-token" }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = "1.0"
+tokio = { workspace = true }
+tracing = { workspace = true }
+axum = { workspace = true }
+hex = "0.4"

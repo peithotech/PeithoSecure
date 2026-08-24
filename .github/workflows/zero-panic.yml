@@ -1,0 +1,23 @@
+name: zero-panic-gate
+on: [push, pull_request]
+
+jobs:
+  clippy:
+    name: Clippy Zero-Panic Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Run Clippy with Strict Zero-Panic Lints
+        run: cargo clippy --workspace --exclude peitho-py --all-targets -- -D warnings
+
+  test:
+    name: Post-Quantum Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run Rust Tests
+        run: cargo test --workspace --exclude peitho-py -- --nocapture
