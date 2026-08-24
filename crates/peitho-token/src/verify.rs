@@ -197,7 +197,22 @@ fn evaluate_caveats(caveats: &[Caveat], ctx: &InvocationContext) -> Result<(), T
             }
             Caveat::ResourcePrefix(prefix) => {
                 if let Some(ref uri) = ctx.resource_uri {
-                    if !uri.starts_with(prefix) {
+                    if uri.contains("/..") || uri.contains("%2e%2e") || uri.contains("%2E%2E") {
+                        return Err(TokenError::UnauthorizedScope {
+                            required: "canonical_clean_uri".to_string(),
+                            allowed: vec![format!("prefix:{}", prefix)],
+                        });
+                    }
+                    let is_match = if uri == prefix {
+                        true
+                    } else if prefix.ends_with('/') || prefix.ends_with(':') {
+                        uri.starts_with(prefix)
+                    } else if uri.starts_with(prefix) {
+                        uri.get(prefix.len()..).map_or(false, |rest| rest.starts_with('/'))
+                    } else {
+                        false
+                    };
+                    if !is_match {
                         return Err(TokenError::UnauthorizedScope {
                             required: uri.clone(),
                             allowed: vec![format!("prefix:{}", prefix)],
