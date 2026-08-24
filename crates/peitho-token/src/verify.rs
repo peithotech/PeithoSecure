@@ -101,7 +101,7 @@ pub fn verify_token_with_registry(
         }
     }
 
-    let root_digest = compute_root_commitment(&token.token_id, &token.root_caveats)?;
+    let root_digest = compute_root_commitment(&token.token_id, token.profile, &token.root_caveats)?;
     verify_signature(&token.root_issuer_pk, &root_digest, &token.root_signature)?;
 
     match token.profile {

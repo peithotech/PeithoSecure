@@ -126,7 +126,7 @@ fn bench_hashing_and_derivation(c: &mut Criterion) {
 
     group.bench_function("compute_root_commitment_postcard_sha3", |b| {
         b.iter(|| {
-            let digest = compute_root_commitment(black_box("token-id-root"), black_box(&caveats));
+            let digest = compute_root_commitment(black_box("token-id-root"), black_box(CryptoProfile::SwarmSpeed), black_box(&caveats));
             assert!(digest.is_ok());
         });
     });
@@ -179,7 +179,7 @@ fn bench_full_pipeline_verification(c: &mut Criterion) {
         Caveat::AllowedTools(vec!["fetch_data".to_string(), "compute".to_string()]),
         Caveat::ExpiresAt(1_900_000_000),
     ];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
     let root_sig = sign_message(&root_sk, &root_digest).expect("sign");
 
     let mut token = CapabilityToken {

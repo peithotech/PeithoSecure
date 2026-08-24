@@ -40,16 +40,16 @@ impl PyCapabilityToken {
             caveats.push(Caveat::ReadOnly);
         }
 
-        let root_digest = compute_root_commitment(&token_id, &caveats)
-            .map_err(to_py_err)?;
-        let root_sig = peitho_core::sign_message(&secret_key.0, &root_digest)
-            .map_err(|e| PeithoError::new_err(e.to_string()))?;
-
         let profile = if profile_swarm {
             CryptoProfile::SwarmSpeed
         } else {
             CryptoProfile::FipsStandard
         };
+
+        let root_digest = compute_root_commitment(&token_id, profile, &caveats)
+            .map_err(to_py_err)?;
+        let root_sig = peitho_core::sign_message(&secret_key.0, &root_digest)
+            .map_err(|e| PeithoError::new_err(e.to_string()))?;
 
         let ephemeral_key = if profile_swarm {
             Some(derive_root_ephemeral_key(&root_sig))

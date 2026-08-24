@@ -19,7 +19,7 @@ fn test_mcp_proxy_end_to_end_shielding() {
         Caveat::AllowedTools(vec!["search_web".to_string(), "query_weather".to_string()]),
         Caveat::ExpiresAt(1_900_000_000),
     ];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
 
     let mut token = CapabilityToken {

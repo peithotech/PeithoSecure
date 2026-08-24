@@ -12,7 +12,7 @@ fn test_instant_in_memory_token_revocation() {
     let (pk, sk) = generate_dsa_keypair().expect("keygen");
     let token_id = "agent-sub-target-99".to_string();
     let root_caveats = vec![Caveat::AllowedTools(vec!["query_data".to_string()])];
-    let digest = compute_root_commitment(&token_id, &root_caveats).expect("digest");
+    let digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("digest");
     let sig = peitho_core::sign_message(&sk, &digest).expect("sign");
 
     let token = CapabilityToken {

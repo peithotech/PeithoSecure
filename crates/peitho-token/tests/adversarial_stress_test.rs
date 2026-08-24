@@ -15,7 +15,7 @@ fn test_adversarial_tampering_and_privilege_escalation() {
     let (root_pk, root_sk) = generate_dsa_keypair().expect("root keygen");
     let token_id = "token-escalation-target".to_string();
     let root_caveats = vec![Caveat::ReadOnly, Caveat::AllowedTools(vec!["query_data".to_string()])];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::FipsStandard, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
 
     let mut token = CapabilityToken {
@@ -53,7 +53,7 @@ fn test_adversarial_bit_flipping_and_fuzz_corruption() {
     let (root_pk, root_sk) = generate_dsa_keypair().expect("root keygen");
     let token_id = "token-fuzz-target".to_string();
     let root_caveats = vec![Caveat::AllowedTools(vec!["search".to_string()])];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
 
     let token = CapabilityToken {
@@ -113,7 +113,7 @@ async fn test_high_throughput_agent_storm() {
     let (root_pk, root_sk) = generate_dsa_keypair().expect("root keygen");
     let token_id = "storm-token".to_string();
     let root_caveats = vec![Caveat::AllowedTools(vec!["query_tool".to_string()]), Caveat::ExpiresAt(1_900_000_000)];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
 
     let mut token = CapabilityToken {

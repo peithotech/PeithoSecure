@@ -17,6 +17,7 @@ sha3 = { workspace = true }
 [dev-dependencies]
 tokio = { workspace = true }
 criterion = { workspace = true }
+proptest = "1.6"
 
 [[bench]]
 name = "agent_swarm_bench"

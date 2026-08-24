@@ -39,7 +39,7 @@ pub async fn handle_sample_token() -> Json<serde_json::Value> {
     if let Ok((pk, sk)) = generate_dsa_keypair() {
         let token_id = "sample-token-01".to_string();
         let caveats = vec![Caveat::AllowedTools(vec!["fetch_data".to_string()]), Caveat::ReadOnly];
-        if let Ok(digest) = compute_root_commitment(&token_id, &caveats) {
+        if let Ok(digest) = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &caveats) {
             if let Ok(sig) = peitho_core::sign_message(&sk, &digest) {
                 let mut token = CapabilityToken {
                     token_id,
@@ -75,7 +75,7 @@ pub async fn handle_test_crypto(
     if let Ok((pk, sk)) = generate_dsa_keypair() {
         let token_id = "diagnostic-token".to_string();
         let caveats = vec![Caveat::AllowedTools(vec!["search_database".to_string()]), Caveat::ReadOnly];
-        if let Ok(digest) = compute_root_commitment(&token_id, &caveats) {
+        if let Ok(digest) = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &caveats) {
             if let Ok(sig) = peitho_core::sign_message(&sk, &digest) {
                 let token = CapabilityToken {
                     token_id,

@@ -15,7 +15,7 @@ fn setup_5_hop_swarm() -> (CapabilityToken, [u8; 32], Vec<[u8; 32]>) {
         Caveat::MaxBudgetMicroUnits(100_000_000), // $100.00
         Caveat::ExpiresAt(1_700_003_600),        // 1 hour
     ];
-    let digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &digest).expect("sign");
 
     let mut token = CapabilityToken {

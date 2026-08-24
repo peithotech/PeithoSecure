@@ -3,11 +3,17 @@
 use sha3::{Digest, Sha3_256};
 use crate::caveat::Caveat;
 use crate::error::TokenError;
+use crate::profile::CryptoProfile;
 
 /// Helper to compute SHA3-256 commitment of token root.
-pub fn compute_root_commitment(token_id: &str, caveats: &[Caveat]) -> Result<Vec<u8>, TokenError> {
+pub fn compute_root_commitment(token_id: &str, profile: CryptoProfile, caveats: &[Caveat]) -> Result<Vec<u8>, TokenError> {
     let mut hasher = Sha3_256::new();
     hasher.update(token_id.as_bytes());
+    let profile_byte = match profile {
+        CryptoProfile::FipsStandard => 0u8,
+        CryptoProfile::SwarmSpeed => 1u8,
+    };
+    hasher.update(&[profile_byte]);
     let mut buf = [0u8; 1024];
     match postcard::to_slice(caveats, &mut buf) {
         Ok(slice) => hasher.update(slice),

@@ -13,7 +13,7 @@ fn test_fips_standard_delegation_profile() {
         Caveat::AllowedTools(vec!["search_web".to_string(), "query_db".to_string()]),
         Caveat::ExpiresAt(1_900_000_000),
     ];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::FipsStandard, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
 
     let mut token = CapabilityToken {
@@ -51,7 +51,7 @@ fn test_swarm_speed_caveat_and_monotonicity_enforcement() {
         Caveat::MaxBudgetMicroUnits(1_000_000),
         Caveat::ResourcePrefix("s3://finance/reports".to_string()),
     ];
-    let root_digest = compute_root_commitment(&token_id, &root_caveats).expect("commitment");
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
     let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
 
     let mut token = CapabilityToken {
