@@ -58,6 +58,7 @@ body {
 .border-subtle { border: 1px solid var(--border); }
 .border-b-subtle { border-bottom: 1px solid var(--border); }
 .border-t-subtle { border-top: 1px solid var(--border); }
+.border-l-subtle { border-left: 1px solid var(--border); }
 .text-main { color: var(--text-main); }
 .text-sub { color: var(--text-sub); }
 .text-dim { color: var(--text-muted); }
@@ -138,6 +139,27 @@ body {
     border-color: var(--color-deny);
 }
 
+.pill-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.pill-btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text-main);
+}
+.pill-btn.active {
+    background-color: var(--badge-bg);
+    color: var(--badge-text);
+    border-color: var(--badge-bg);
+}
+
 .tab-btn {
     background: transparent;
     border: none;
@@ -161,6 +183,20 @@ body {
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 16px;
+}
+
+.tree-node {
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: all 0.1s ease;
+}
+.tree-node:hover {
+    background-color: var(--bg-surface-hover);
+}
+.tree-node.selected {
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg-surface-hover);
 }
 
 [data-theme="dark"] .logo-light { display: none !important; }

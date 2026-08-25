@@ -36,22 +36,24 @@ async fn test_v1_overview_endpoint() {
     let Json(json) = handle_v1_overview(State(state)).await;
     assert_eq!(json["status"], "LOCAL_HEALTHY");
     assert_eq!(json["community_mode"], true);
-    assert_eq!(json["health_checks"]["root_authority"], "Valid (ML-DSA-44)");
+    assert_eq!(json["ui_address"], "127.0.0.1:4040");
+    assert_eq!(json["mcp_gateway_address"], "127.0.0.1:8080/mcp");
+    assert_eq!(json["engine_checklist"][0]["status"], "PASS");
 }
 
 #[tokio::test]
 async fn test_v1_invariants_endpoint() {
     let Json(json) = handle_v1_invariants().await;
-    assert_eq!(json["total"], 19);
+    assert_eq!(json["total"], 18);
     assert_eq!(json["invariants"][0]["id"], "P-001");
-    assert_eq!(json["invariants"][18]["id"], "P-019");
+    assert_eq!(json["invariants"][17]["id"], "P-018");
 }
 
 #[tokio::test]
 async fn test_v1_system_endpoint() {
     let Json(json) = handle_v1_system().await;
-    assert_eq!(json["version"], "1.0.0-oss");
-    assert_eq!(json["git_revision"], "7c51e4b");
+    assert_eq!(json["runtime"]["architecture"], "aarch64");
+    assert_eq!(json["crypto"]["root"], "ML-DSA-44 (FIPS 204)");
 }
 
 #[tokio::test]
@@ -60,6 +62,7 @@ async fn test_v1_decisions_endpoint() {
     let filter = FilterQuery { tool: None, outcome: None };
     let Json(json) = handle_v1_decisions(State(state), Query(filter)).await;
     assert!(json.is_array());
+    assert!(!json.as_array().unwrap().is_empty());
 }
 
 #[tokio::test]
