@@ -59,4 +59,8 @@ pub enum TokenError {
         /// The replayed nonce.
         nonce: u64,
     },
+
+    /// Durable storage or snapshot persistence error.
+    #[error("storage persistence error: {0}")]
+    StorageError(String),
 }

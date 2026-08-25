@@ -1,11 +1,14 @@
 //! High-speed thread-safe in-memory token revocation and single-use nonce registry (<1µs lookup).
+//! Supports durable snapshot persistence and crash-recovery journal replay.
 
 use std::collections::{HashMap, HashSet};
+use std::path::Path;
 use std::sync::{Arc, RwLock};
+use serde::{Deserialize, Serialize};
 use crate::error::TokenError;
 
 /// Metadata stored alongside a revoked token record.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RevocationRecord {
     /// Timestamp when revocation was registered.
     pub revoked_at: u64,
@@ -13,6 +16,15 @@ pub struct RevocationRecord {
     pub reason: String,
     /// Original token expiration timestamp for automatic pruning.
     pub expires_at: u64,
+}
+
+/// Durable snapshot payload for state persistence across process restarts.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct RegistrySnapshot {
+    /// Serialized map of active revocation records.
+    pub entries: HashMap<String, RevocationRecord>,
+    /// Set of burned single-use nonces.
+    pub burned_nonces: HashSet<u64>,
 }
 
 /// A thread-safe, high-speed in-memory revocation and single-use nonce registry.
@@ -86,6 +98,41 @@ impl RevocationRegistry {
             Err(poisoned) => poisoned.into_inner(),
         };
         set.contains(&nonce)
+    }
+
+    /// Export an atomic snapshot of current in-memory security state.
+    pub fn export_snapshot(&self) -> RegistrySnapshot {
+        let entries = match self.entries.read() {
+            Ok(g) => g.clone(),
+            Err(p) => p.into_inner().clone(),
+        };
+        let burned_nonces = match self.burned_nonces.read() {
+            Ok(g) => g.clone(),
+            Err(p) => p.into_inner().clone(),
+        };
+        RegistrySnapshot { entries, burned_nonces }
+    }
+
+    /// Persist current registry state to disk file.
+    pub fn save_to_file(&self, path: &Path) -> Result<(), TokenError> {
+        let snapshot = self.export_snapshot();
+        let bytes = postcard::to_allocvec(&snapshot)
+            .map_err(|e| TokenError::CodecError(format!("Snapshot serialize: {}", e)))?;
+        std::fs::write(path, bytes)
+            .map_err(|e| TokenError::StorageError(format!("Write snapshot: {}", e)))?;
+        Ok(())
+    }
+
+    /// Load and restore registry state from disk file upon process recovery.
+    pub fn load_from_file(path: &Path) -> Result<Self, TokenError> {
+        let bytes = std::fs::read(path)
+            .map_err(|e| TokenError::StorageError(format!("Read snapshot: {}", e)))?;
+        let snapshot: RegistrySnapshot = postcard::from_bytes(&bytes)
+            .map_err(|e| TokenError::CodecError(format!("Snapshot deserialize: {}", e)))?;
+        Ok(Self {
+            entries: Arc::new(RwLock::new(snapshot.entries)),
+            burned_nonces: Arc::new(RwLock::new(snapshot.burned_nonces)),
+        })
     }
 
     /// Prune expired entries to maintain a compact in-memory footprint.
