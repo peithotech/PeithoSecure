@@ -1,72 +1,106 @@
-# 🏛️ PeithoSecure: Product Positioning & Strategic Architecture
+# 🏛️ PeithoSecure: Commercial Strategy & Authority Lifecycle Architecture
 ## Cryptographic Agent Authorization Infrastructure
 
 ---
 
-### 🎯 1. The Category Definition
+### 🎯 1. The Core Value Proposition
 
-> **PeithoSecure is the cryptographic authorization kernel for autonomous agent systems.**
-> It provides a locally verifiable, monotonically attenuating capability substrate that operates without requiring centralized authorization availability on the hot path.
+> **The Peitho Kernel answers:** *"Is this discrete action cryptographically authorized?"* ($46\,\mu\text{s}$ local in-memory hot path, zero network dependency).
+>
+> **Peitho Authority Cloud answers:** *"Who is allowed to compile, issue, delegate, trace, investigate, and revoke that authority across 100,000 autonomous agents?"*
+
+---
+
+### 🧩 2. Open Core vs. Commercial Authority Cloud
+
+We adopt the **Open-Core Infrastructure Architecture** (the model proven by Tailscale, Teleport, and Cilium):
 
 ```
-                          AI AGENT SECURITY
-                                 │
-        ┌────────────────────────┼────────────────────────┐
-        ▼                        ▼                        ▼
-  [DETECTION & PROMPT]     [CONTROL PLANE]          [ENFORCEMENT SUBSTRATE]
-  • Lakera, PromptSec      • Zenity, Arcade.dev     • 🌟 PEITHOSECURE
-  • Content Filtering      • Agent Governance       • Cryptographic Authority
-  • PII & Jailbreaks       • Policy Authoring       • Monotonic Attenuation
-                           • Identity Cataloging    • Sub-Millisecond Verification
-                           • Enterprise Auditing    • Hot-Path Offline Capability
-                                                    • Side-Effect Provenance
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                       PEITHO AUTHORITY CLOUD                            │
+ │                        (COMMERCIAL PLATFORM)                            │
+ │  • Identity → Authority Compiler (Okta, Entra ID, CyberArk Federation)  │
+ │  • Authority Provenance Graph (Full Human → Agent → Subagent Trace)     │
+ │  • Out-of-Band Authority Lifecycle & Instant Revocation Distribution    │
+ │  • Hardware Root Authority Custody (CloudHSM, Dedicated KMS, Vault)     │
+ │  • Kubernetes Fleet Auto-Injector & Agent Quarantine Operator           │
+ └────────────────────────────────────┬────────────────────────────────────┘
+                                      │ Distributes Capabilities & Trust
+                                      ▼
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                      PEITHO KERNEL & MCP PROXY                          │
+ │                       (OPEN SOURCE / APACHE 2.0)                        │
+ │  • NIST FIPS 204 ML-DSA-44 Capability Token Codec (Rust & Python)       │
+ │  • Sub-microsecond Local Verification Engine (46 µs hot path)           │
+ │  • Monotonic HMAC Delegation Cascades (50+ Hops)                        │
+ │  • Atomic POSIX Durability & Single-Use Nonce Burning (<15 ns)          │
+ │  • Standalone MCP Proxy Interceptor & Reference Verifier Model          │
+ └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 🧩 2. The Control-Plane vs. Enforcement-Plane Architecture
+### ⚡ 3. Architectural Decoupling: Zero Hot-Path Dependency
 
-Rather than competing with enterprise governance platforms, PeithoSecure serves as the **high-performance cryptographic enforcement substrate** beneath modern Agent IAM:
+A critical design invariant separates Peitho from centralized IAM bottlenecks:
+
+> **"Peitho Authority Cloud distributes policy and revocation state out-of-band. It never sits synchronously on the execution hot path."**
 
 ```
- ┌─────────────────────────────────────────────────────────────┐
- │            ENTERPRISE CONTROL PLANE (Zenity / Okta)         │
- │  • Agent Discovery & Inventory      • Policy Authoring UI   │
- │  • Human Identity & OIDC Federation • Compliance Analytics  │
- └──────────────────────────────┬──────────────────────────────┘
-                                │ Emits Master Capability
-                                ▼
- ╔═════════════════════════════════════════════════════════════╗
- ║                PEITHO CRYPTOGRAPHIC KERNEL                  ║
- ║  • NIST FIPS 204 ML-DSA-44 Post-Quantum Lattice Root Anchor ║
- ║  • Monotonically Attenuated Delegation Cascades (50+ Hops)  ║
- ║  • In-Memory Local Verification ($46\,\mu\text{s}$ Hot Path)║
- ║  • Atomic POSIX Durability & Single-Use Nonce Burning       ║
- ║  • Discrete Side-Effect Provenance & Contextual Confinement ║
- ╚═════════════════════════════════════════════════════════════╝
-                                │
-                 Authorized Execution Gateway
-                                ▼
- ┌─────────────────────────────────────────────────────────────┐
- │                TARGET ENTERPRISE SYSTEMS                    │
- │  • MCP Tool Servers   • S3 Object Storage  • SQL Databases  │
- └─────────────────────────────────────────────────────────────┘
+             PEITHO AUTHORITY CLOUD
+                       │
+          out-of-band issuance / revocation
+                       │
+                       ▼
+              ┌─────────────────┐
+              │  PEITHO KERNEL  │
+              │                 │
+Agent ───────►│ local decision  │──────► Enterprise System
+              │                 │
+              │  NO network call│
+              └─────────────────┘
 ```
+
+* **Failure Independence Guarantee**: If Peitho Authority Cloud or the corporate network experiences downtime, already-issued, time-bounded capabilities continue executing locally with zero latency spikes and zero downtime.
 
 ---
 
-### ⚡ 3. Performance & Hot-Path Architecture
+### 🌳 4. The Flagship Commercial Capabilities
 
-* **The Core Advantage**:
-  > *"Peitho eliminates the need for centralized authorization network roundtrips on the execution hot path."*
-* **Benchmark Standard**:
-  * Peitho's local in-memory kernel evaluates multi-hop capability delegation chains in **$46\,\mu\text{s}$** on Apple M3 Pro / modern ARM64 server hardware, enabling subagents to spawn, attenuate, and execute at machine speed.
-* **Failure Independence**:
-  * If a central IAM control plane experiences network degradation or downtime, agents holding valid, time-bounded Peitho capability tokens continue executing securely within their strict mathematical bounds without downtime.
+Instead of selling a disconnected checklist of enterprise features, the commercial platform focuses on three core pillars:
+
+#### Pillar 1: Identity → Authority Compiler
+Compiles high-level enterprise identity (Okta, Entra ID, CyberArk) and organizational policy into cryptographically constrained capability trees:
+$$\text{Human Identity} + \text{Enterprise Role} \xrightarrow{\text{Compiler}} \text{Attenuated Capability Token}(\text{Tools}, \text{Resources}, \text{Budgets}, \text{TTLs})$$
+
+#### Pillar 2: Authority Provenance Graph
+Transforms flat audit logs into a rich, verifiable graph answering the fundamental CISO question: *"Why was Agent C permitted to execute this action?"*
+$$\text{Employee Alice} \longrightarrow \text{Lead Agent} \longrightarrow \text{Subagent B} \longrightarrow \text{Capability \#8F2A} \longrightarrow \text{Execute Tool} \longrightarrow \text{Resource}$$
+
+#### Pillar 3: Out-of-Band Authority Lifecycle & Fleet Control
+* Root key lifecycle management and hardware custody (CloudHSM / Vault).
+* Kubernetes sidecar auto-injection (`peitho-operator`) across multi-cluster fleets.
+* Out-of-band emergency revocation broadcasts bounding stale authorization windows.
 
 ---
 
-### 🛡️ 4. The 3 Immutable Value Commitments
+### 💵 5. Monetization Model & Economic Tiers
+
+The pricing model tracks **agent scale and governance complexity**, rather than human seats:
+
+* **Developer (Free / Open Source)**:
+  * Local Rust kernel, Python SDK, MCP proxy CLI, 18-property invariant suite.
+  * Designed for individual developers and local swarms (1–10 agents).
+* **Team ($5k – $25k / year pilot hypothesis)**:
+  * Centralized capability issuance, basic SSO, local authority tracking (up to 100 agents).
+* **Production ($25k – $75k / year hypothesis)**:
+  * Full Authority Provenance Graph, multi-environment fleet distribution, automated revocation sync.
+* **Enterprise & Regulated ($75k – $250k+ / year hypothesis)**:
+  * CloudHSM/Vault root custody, multi-cluster Kubernetes operator, 24/7 SLA, custom compliance audit streams (SOC 2, HIPAA, EU AI Act).
+
+---
+
+### 🛡️ 6. The 3 Immutable Value Commitments
 
 1. **Monotonic Authority Containment**:
    * *"Compromise of an agent cannot cryptographically expand the authority encoded in the capability it possesses."*
@@ -74,14 +108,3 @@ Rather than competing with enterprise governance platforms, PeithoSecure serves 
    * *"Peitho provides at-most-once authorization semantics for single-use capabilities; exactly-once business outcomes are coordinated with downstream idempotency."*
 3. **Discrete Side-Effect Provenance**:
    * *"Every discrete side effect crossing the enforcement gateway must independently present its own delegated capability."*
-
----
-
-### 🚀 5. The Path from Kernel to Ecosystem Standard
-
-```
-  [PHASE P0.8] ───> [PHASE P0.9] ───> [PRE-PRODUCTION] ───> [ENTERPRISE SCALE]
-   18 Invariants     Clean-Room Ref     Real MCP + S3        Control-Plane
-   Registry Frozen   Differential Fuzz  PostgreSQL Pilot     Integrations
-                     Third-Party Audit  Production Latency   (Zenity / Arcade / Okta)
-```
