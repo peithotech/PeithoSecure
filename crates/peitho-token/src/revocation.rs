@@ -113,13 +113,16 @@ impl RevocationRegistry {
         RegistrySnapshot { entries, burned_nonces }
     }
 
-    /// Persist current registry state to disk file.
+    /// Persist current registry state to disk file atomically using temp file and rename.
     pub fn save_to_file(&self, path: &Path) -> Result<(), TokenError> {
         let snapshot = self.export_snapshot();
         let bytes = postcard::to_allocvec(&snapshot)
             .map_err(|e| TokenError::CodecError(format!("Snapshot serialize: {}", e)))?;
-        std::fs::write(path, bytes)
-            .map_err(|e| TokenError::StorageError(format!("Write snapshot: {}", e)))?;
+        let tmp_path = path.with_extension("tmp");
+        std::fs::write(&tmp_path, bytes)
+            .map_err(|e| TokenError::StorageError(format!("Write tmp snapshot: {}", e)))?;
+        std::fs::rename(&tmp_path, path)
+            .map_err(|e| TokenError::StorageError(format!("Atomic rename snapshot: {}", e)))?;
         Ok(())
     }
 
