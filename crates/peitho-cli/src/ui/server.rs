@@ -1,4 +1,5 @@
-//! Embedded Axum web server for the PeithoSecure enterprise developer dashboard.
+//! Embedded Axum web server for the Peitho Community developer dashboard.
+//! Serves the local UI on 127.0.0.1:4040 and versioned /api/v1/ REST endpoints.
 
 use std::collections::HashMap;
 use std::net::SocketAddr;
@@ -15,15 +16,15 @@ use axum::{
 };
 use peitho_mcp::{
     extract_tool_call_meta, BreakGlassIncident, IncidentSeverity, InterceptDecision, JsonRpcRequest,
-    JsonRpcResponse, McpInterceptor,
+    JsonRpcResponse, McpInterceptor, TelemetryRingBuffer,
 };
 use peitho_token::{decode_token, CapabilityToken, RevocationRegistry};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use super::api::{
-    chrono_now, handle_approve_incident, handle_get_incidents, handle_inspect,
-    handle_quarantine_incident, handle_revoke, handle_sample_token, handle_test_crypto,
+    chrono_now, handle_v1_decisions, handle_v1_invariants, handle_v1_overview,
+    handle_v1_self_test, handle_v1_system,
 };
 use super::html::get_page_html;
 
@@ -52,6 +53,7 @@ pub struct ClientSession {
 pub struct AppState {
     pub registry: Arc<RevocationRegistry>,
     pub interceptor: McpInterceptor,
+    pub telemetry: TelemetryRingBuffer,
     pub total_verifications: Arc<AtomicUsize>,
     pub total_nanos: Arc<AtomicU64>,
     pub events: Arc<Mutex<Vec<LiveEvent>>>,
@@ -59,56 +61,10 @@ pub struct AppState {
     pub incidents: Arc<Mutex<Vec<BreakGlassIncident>>>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct StatsResponse {
-    status: &'static str,
-    pqc_algorithm: &'static str,
-    fips_standard: &'static str,
-    avg_latency_micros: f64,
-    total_verifications: usize,
-    revocations_count: usize,
-    host_cpu: &'static str,
-    listening_on: &'static str,
-    active_sessions_count: usize,
-    pending_incidents_count: usize,
-}
-
 async fn handle_index() -> (HeaderMap, Html<String>) {
     let mut headers = HeaderMap::new();
     headers.insert("Cache-Control", "no-cache, no-store, must-revalidate".parse().unwrap());
     (headers, Html(get_page_html()))
-}
-
-async fn handle_stats(State(state): State<AppState>) -> Json<StatsResponse> {
-    let count = state.total_verifications.load(Ordering::Relaxed);
-    let total_nanos = state.total_nanos.load(Ordering::Relaxed);
-    let avg_latency = if count > 0 { (total_nanos as f64) / (count as f64) / 1000.0 } else { 0.0 };
-    let sessions_count = state.sessions.lock().map(|s| s.len()).unwrap_or(0);
-    let incidents_count = state.incidents.lock().map(|i| i.iter().filter(|x| x.status == peitho_mcp::IncidentStatus::PendingReview).count()).unwrap_or(0);
-
-    Json(StatsResponse {
-        status: "GATEWAY_ACTIVE",
-        pqc_algorithm: "ML-DSA-44 / ML-KEM-768",
-        fips_standard: "FIPS 203 / FIPS 204",
-        avg_latency_micros: (avg_latency * 10.0).round() / 10.0,
-        total_verifications: count,
-        revocations_count: state.registry.count(),
-        host_cpu: "Apple Silicon (M3 Pro) • ARM64 Neon",
-        listening_on: "http://127.0.0.1:8080/mcp",
-        active_sessions_count: sessions_count,
-        pending_incidents_count: incidents_count,
-    })
-}
-
-async fn handle_events(State(state): State<AppState>) -> Json<Vec<LiveEvent>> {
-    Json(state.events.lock().unwrap_or_else(|e| e.into_inner()).clone())
-}
-
-async fn handle_sessions(State(state): State<AppState>) -> Json<Vec<ClientSession>> {
-    let map = state.sessions.lock().unwrap_or_else(|e| e.into_inner());
-    let mut list: Vec<ClientSession> = map.values().cloned().collect();
-    list.sort_by(|a, b| b.last_active.cmp(&a.last_active));
-    Json(list)
 }
 
 fn extract_token(headers: &HeaderMap) -> Option<CapabilityToken> {
@@ -128,7 +84,7 @@ async fn handle_mcp_post(
     let has_token = token.is_some();
     let token_id = token.as_ref().map(|t| t.token_id.clone());
     let tool_name = extract_tool_call_meta(&payload).map(|m| m.tool_name).unwrap_or_else(|| payload.method.clone());
-    let caller = headers.get("User-Agent").and_then(|v| v.to_str().ok()).unwrap_or("External-MCP-Client").to_string();
+    let caller = headers.get("User-Agent").and_then(|v| v.to_str().ok()).unwrap_or("Local-Agent").to_string();
 
     let start = Instant::now();
     let decision = state.interceptor.evaluate(&payload, token.as_ref());
@@ -196,9 +152,12 @@ async fn handle_mcp_post(
 /// Start the local developer dashboard on the given port.
 pub async fn start_ui_server(port: u16) -> Result<()> {
     let registry = Arc::new(RevocationRegistry::new());
-    let interceptor = McpInterceptor::with_revocation(Arc::clone(&registry));
+    let telemetry = TelemetryRingBuffer::new(1000);
+    let interceptor = McpInterceptor::with_revocation(Arc::clone(&registry))
+        .with_telemetry(telemetry.clone());
+
     let state = AppState {
-        registry, interceptor,
+        registry, interceptor, telemetry,
         total_verifications: Arc::new(AtomicUsize::new(0)),
         total_nanos: Arc::new(AtomicU64::new(0)),
         events: Arc::new(Mutex::new(Vec::new())),
@@ -209,16 +168,11 @@ pub async fn start_ui_server(port: u16) -> Result<()> {
     let app = Router::new()
         .route("/", get(handle_index))
         .route("/mcp", post(handle_mcp_post))
-        .route("/api/stats", get(handle_stats))
-        .route("/api/events", get(handle_events))
-        .route("/api/sessions", get(handle_sessions))
-        .route("/api/incidents", get(handle_get_incidents))
-        .route("/api/incidents/approve", post(handle_approve_incident))
-        .route("/api/incidents/quarantine", post(handle_quarantine_incident))
-        .route("/api/inspect", post(handle_inspect))
-        .route("/api/sample-token", get(handle_sample_token))
-        .route("/api/test-crypto", post(handle_test_crypto))
-        .route("/api/revoke", post(handle_revoke))
+        .route("/api/v1/overview", get(handle_v1_overview))
+        .route("/api/v1/decisions", get(handle_v1_decisions))
+        .route("/api/v1/invariants", get(handle_v1_invariants))
+        .route("/api/v1/system", get(handle_v1_system))
+        .route("/api/v1/self-test", post(handle_v1_self_test))
         .with_state(state);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], port));

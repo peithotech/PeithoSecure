@@ -26,6 +26,12 @@ impl McpProxy {
         }
     }
 
+    /// Attach a telemetry ring buffer to capture execution traces.
+    pub fn with_telemetry(mut self, telemetry: crate::telemetry::TelemetryRingBuffer) -> Self {
+        self.interceptor = self.interceptor.with_telemetry(telemetry);
+        self
+    }
+
     /// Process a raw JSON-RPC line message from an AI Agent.
     pub fn process_message<F>(
         &self,

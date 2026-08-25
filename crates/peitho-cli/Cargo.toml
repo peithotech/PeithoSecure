@@ -10,6 +10,10 @@ description = "Command-line interface and daemon runner for PeithoSecure"
 name = "peitho"
 path = "src/main.rs"
 
+[lib]
+name = "peitho_cli"
+path = "src/lib.rs"
+
 [dependencies]
 peitho-core = { path = "../peitho-core" }
 peitho-token = { path = "../peitho-token" }

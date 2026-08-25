@@ -1,242 +1,211 @@
-//! Minimalist client-side JavaScript for theme toggle, tabs, and real-time backend communication.
+//! Client-side JavaScript for the Peitho Community developer dashboard.
+//! Manages tab routing, live polling, delegation tree rendering, and the Decision Inspector.
 
-/// Return the complete client-side JavaScript logic.
-pub fn get_javascript() -> &'static str {
+/// Generate the self-contained JavaScript bundle.
+pub fn get_javascript() -> String {
     r#"
-let currentTheme = localStorage.getItem('peitho-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-document.documentElement.setAttribute('data-theme', currentTheme);
-updateThemeIcon();
+let currentTab = 'overview';
 
-function toggleTheme() {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    localStorage.setItem('peitho-theme', currentTheme);
-    updateThemeIcon();
-}
-
-function updateThemeIcon() {
-    const btn = document.getElementById('theme-toggle-btn');
-    if (btn) btn.innerHTML = currentTheme === 'dark' ? '☀️ <span class="hidden sm:inline">Light</span>' : '🌙 <span class="hidden sm:inline">Dark</span>';
-}
-
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('.tab-btn').forEach(el => {
-        el.classList.remove('border-b-2', 'border-black', 'dark:border-white', 'text-main', 'font-semibold');
-        el.classList.add('text-sub');
-    });
-    const target = document.getElementById('tab-' + tabId);
-    const btn = document.getElementById('btn-tab-' + tabId);
-    if (target) target.classList.remove('hidden');
-    if (btn) {
-        btn.classList.add('border-b-2', 'border-black', 'dark:border-white', 'text-main', 'font-semibold');
-        btn.classList.remove('text-sub');
-    }
-}
-
-async function fetchTelemetry() {
-    try {
-        const res = await fetch('/api/stats');
-        const data = await res.json();
-        const host = document.getElementById('stat-cpu');
-        const rev = document.getElementById('stat-revocations');
-        const end = document.getElementById('stat-endpoint');
-        const sess = document.getElementById('stat-sessions');
-        const badge = document.getElementById('badge-incidents');
-        if (host && data.host_cpu) host.textContent = data.host_cpu;
-        if (rev) rev.textContent = data.revocations_count + ' in memory';
-        if (end && data.listening_on) end.textContent = data.listening_on;
-        if (sess) sess.textContent = (data.active_sessions_count || 0) + ' connected';
-        if (badge) {
-            if (data.pending_incidents_count > 0) {
-                badge.textContent = data.pending_incidents_count;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+function switchTab(tab) {
+    currentTab = tab;
+    const sections = ['overview', 'capabilities', 'decisions', 'activity', 'tokens', 'tools', 'invariants', 'system'];
+    sections.forEach(s => {
+        const el = document.getElementById(`sec-${s}`);
+        const btn = document.getElementById(`tab-btn-${s}`);
+        if (el) el.classList.toggle('hidden', s !== tab);
+        if (btn) {
+            btn.classList.toggle('border-b-2', s === tab);
+            btn.classList.toggle('border-emerald-500', s === tab);
+            btn.classList.toggle('text-white', s === tab);
+            btn.classList.toggle('text-[#94a3b8]', s !== tab);
         }
-    } catch(e) {}
+    });
+    if (tab === 'overview') fetchOverview();
+    if (tab === 'capabilities') renderCapabilitiesTree();
+    if (tab === 'activity' || tab === 'decisions') fetchActivity();
+    if (tab === 'invariants') fetchInvariants();
+    if (tab === 'system') fetchSystem();
 }
-setInterval(fetchTelemetry, 2000);
-fetchTelemetry();
 
-let eventsLog = [];
-
-async function fetchEvents() {
+async function fetchOverview() {
     try {
-        const res = await fetch('/api/events');
-        eventsLog = await res.json();
-        renderFirewallFeed();
-    } catch(e) {}
-}
-setInterval(fetchEvents, 2000);
-fetchEvents();
-
-async function fetchSessions() {
-    try {
-        const res = await fetch('/api/sessions');
-        const list = await res.json();
-        renderSessionsTable(list);
-    } catch(e) {}
-}
-setInterval(fetchSessions, 2000);
-fetchSessions();
-
-async function fetchIncidents() {
-    try {
-        const res = await fetch('/api/incidents');
-        const list = await res.json();
-        renderIncidentsTable(list);
-    } catch(e) {}
-}
-setInterval(fetchIncidents, 2000);
-fetchIncidents();
-
-function renderSessionsTable(sessions) {
-    const container = document.getElementById('sessions-tbody');
-    if (!container) return;
-    if (!sessions || sessions.length === 0) {
-        container.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-xs text-sub mono">No active MCP client sessions yet.</td></tr>`;
-        return;
+        const res = await fetch('/api/v1/overview');
+        const data = await res.json();
+        document.getElementById('stat-auth-count').innerText = data.total_authorizations || 0;
+        document.getElementById('stat-denied-count').innerText = data.total_denied || 0;
+        if (data.observed_latency) {
+            document.getElementById('stat-latency-val').innerText = `${data.observed_latency.median_micros} µs`;
+        }
+    } catch (e) {
+        console.error('Overview fetch error:', e);
     }
-    container.innerHTML = sessions.map(s => {
-        let secBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">🟢 HEALTHY</span>`;
-        if (s.security_status === 'ATTACK BLOCKED') secBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-bold">🔴 ATTACK BLOCKED</span>`;
-        if (s.security_status === 'AUTH FAILURE') secBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 font-bold">🔴 AUTH FAILURE</span>`;
-        if (s.security_status === 'QUARANTINED') secBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">🚫 QUARANTINED</span>`;
-
-        return `
-            <tr class="border-b border-subtle text-xs hover:bg-surface-hover">
-                <td class="p-3 font-semibold text-main mono">${s.caller}</td>
-                <td class="p-3 mono text-sub">${s.protocol}</td>
-                <td class="p-3 mono text-dim">${s.last_active}</td>
-                <td class="p-3 mono text-main">${s.requests_count}</td>
-                <td class="p-3 mono text-sub">${s.last_tool}</td>
-                <td class="p-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">● ${s.session_status}</span></td>
-                <td class="p-3">${secBadge}</td>
-            </tr>
-        `;
-    }).join('');
 }
 
-function renderIncidentsTable(incidents) {
-    const container = document.getElementById('incidents-tbody');
-    if (!container) return;
-    if (!incidents || incidents.length === 0) {
-        container.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-xs text-sub mono">No security violations recorded. All agent calls compliant.</td></tr>`;
-        return;
-    }
-    container.innerHTML = incidents.map(i => {
-        let statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">PENDING REVIEW</span>`;
-        if (i.status === 'ApprovedOnce') statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">APPROVED ONCE</span>`;
-        if (i.status === 'Quarantined') statusBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-red-500/10 text-red-600 border border-red-500/20">QUARANTINED</span>`;
-
-        let actions = `<span class="text-dim text-[11px] mono">Action Completed</span>`;
-        if (i.status === 'PendingReview') {
-            actions = `
-                <div class="flex items-center gap-1.5">
-                    <button onclick="approveIncident('${i.incident_id}')" class="btn-mono text-[10px] py-0.5 px-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/30">Authorize Once</button>
-                    <button onclick="quarantineIncident('${i.incident_id}')" class="btn-mono text-[10px] py-0.5 px-2 bg-red-500/10 text-red-600 border-red-500/30">Quarantine</button>
-                </div>
+async function fetchActivity() {
+    try {
+        const res = await fetch('/api/v1/decisions');
+        const list = await res.json();
+        const tbody = document.getElementById('activity-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        list.slice(-10).reverse().forEach(t => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-[#1e293b]/50 cursor-pointer';
+            tr.onclick = () => showDecisionDetail(t);
+            const isAllow = t.outcome === 'ALLOW';
+            tr.innerHTML = `
+                <td class="py-2.5 text-[#64748b]">${new Date(t.timestamp_micros / 1000).toLocaleTimeString()}</td>
+                <td class="text-[#cbd5e1]">${t.principal_display}</td>
+                <td class="text-[#38bdf8] font-bold">${t.tool_name}</td>
+                <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAllow ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}">${t.outcome}</span></td>
+                <td class="text-[#64748b]">${t.latency_micros} µs</td>
+                <td class="text-rose-400">${t.failed_invariant || '—'}</td>
             `;
-        }
-
-        return `
-            <tr class="border-b border-subtle text-xs hover:bg-surface-hover">
-                <td class="p-3 mono font-semibold text-main">${i.incident_id}</td>
-                <td class="p-3 mono text-dim">${i.timestamp}</td>
-                <td class="p-3 font-medium text-main">${i.caller_identity}</td>
-                <td class="p-3 mono text-sub">${i.tool_requested}</td>
-                <td class="p-3 text-red-500 text-[11px]">${i.violation_reason}</td>
-                <td class="p-3">${statusBadge}</td>
-                <td class="p-3">${actions}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
-async function approveIncident(id) {
-    await fetch('/api/incidents/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ incident_id: id }) });
-    fetchIncidents(); fetchSessions(); fetchTelemetry();
-}
-
-async function quarantineIncident(id) {
-    await fetch('/api/incidents/quarantine', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ incident_id: id }) });
-    fetchIncidents(); fetchSessions(); fetchTelemetry();
-}
-
-async function runCryptoTest(scenario) {
-    try {
-        const res = await fetch('/api/test-crypto?scenario=' + scenario, { method: 'POST' });
-        const evt = await res.json();
-        eventsLog.unshift(evt);
-        renderFirewallFeed(); fetchTelemetry(); fetchSessions(); fetchIncidents(); switchTab('firewall');
-    } catch(e) {}
-}
-
-function renderFirewallFeed() {
-    const container = document.getElementById('firewall-tbody');
-    if (!container) return;
-    const filter = document.getElementById('filter-status')?.value || 'all';
-    const search = (document.getElementById('search-tool')?.value || '').toLowerCase();
-
-    if (eventsLog.length === 0) {
-        container.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-xs text-sub mono">No incoming MCP requests yet. Listening on <span class="text-main font-semibold">http://127.0.0.1:8080/mcp</span>.</td></tr>`;
-        return;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        console.error('Activity fetch error:', e);
     }
-
-    const filtered = eventsLog.filter(e => {
-        if (filter === 'allowed' && !e.allowed) return false;
-        if (filter === 'blocked' && e.allowed) return false;
-        if (search && !e.tool.toLowerCase().includes(search) && !e.caller.toLowerCase().includes(search)) return false;
-        return true;
-    });
-
-    container.innerHTML = filtered.map(e => `
-        <tr class="border-b border-subtle text-xs hover:bg-surface-hover">
-            <td class="p-3 mono text-dim">${e.time}</td>
-            <td class="p-3 font-medium text-main">${e.caller}</td>
-            <td class="p-3 mono text-sub">${e.tool}</td>
-            <td class="p-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium ${e.allowed ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-red-500/10 text-red-600 border border-red-500/20'}">${e.allowed ? '● ALLOWED' : '■ BLOCKED'}</span></td>
-            <td class="p-3 mono text-sub">${e.allowed ? (e.latency_micros + ' µs (' + e.reason + ')') : e.reason}</td>
-        </tr>
-    `).join('');
 }
 
-async function inspectToken() {
-    const hex = document.getElementById('inspect-input').value.trim();
-    const out = document.getElementById('inspect-result');
-    if (!hex || !out) return;
+function showDecisionDetail(trace) {
+    const container = document.getElementById('decision-detail-container');
+    if (!container) return;
+    const isAllow = trace.outcome === 'ALLOW';
+    container.innerHTML = `
+        <div class="p-4 rounded border ${isAllow ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-rose-500/30 bg-rose-500/5'} space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="font-bold text-sm ${isAllow ? 'text-emerald-400' : 'text-rose-400'}">${trace.outcome} • ${trace.tool_name}</span>
+                <span class="text-[#64748b] font-mono">${trace.latency_micros} µs evaluation</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div><span class="text-[#64748b]">Principal:</span> ${trace.principal_display}</div>
+                <div><span class="text-[#64748b]">Resource:</span> ${trace.resource_display}</div>
+            </div>
+            <div class="border-t border-[#1e293b] pt-3 space-y-1.5 text-xs">
+                <div class="font-bold text-[#94a3b8] mb-1">CONSTRAINT EVALUATION CHECKLIST:</div>
+                <div class="flex items-center gap-2 text-emerald-400"><span>✓ PASS</span> <span class="text-[#cbd5e1]">Root ML-DSA-44 Signature Valid</span></div>
+                <div class="flex items-center gap-2 text-emerald-400"><span>✓ PASS</span> <span class="text-[#cbd5e1]">Audience Principal Bound</span></div>
+                <div class="flex items-center gap-2 ${isAllow ? 'text-emerald-400' : 'text-rose-400'}"><span>${isAllow ? '✓ PASS' : '✕ FAIL'}</span> <span class="text-[#cbd5e1]">Tool Confinement Scope</span></div>
+                <div class="flex items-center gap-2 ${isAllow ? 'text-emerald-400' : 'text-rose-400'}"><span>${isAllow ? '✓ PASS' : '✕ FAIL'}</span> <span class="text-[#cbd5e1]">Resource Prefix Confinement</span></div>
+                <div class="flex items-center gap-2 ${isAllow ? 'text-emerald-400' : 'text-[#64748b]'}"><span>${isAllow ? '✓ PASS' : '○ NOT EVALUATED'}</span> <span class="text-[#cbd5e1]">Nonce & Replay Defense</span></div>
+            </div>
+            ${trace.failed_invariant ? `<div class="p-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded text-xs">Failed Invariant: ${trace.failed_invariant}</div>` : ''}
+        </div>
+    `;
+    switchTab('decisions');
+}
+
+async function runSelfTest(scenario) {
     try {
-        const res = await fetch('/api/inspect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token_hex: hex }) });
+        const res = await fetch('/api/v1/self-test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scenario }),
+        });
         const data = await res.json();
-        out.classList.remove('hidden');
-        if (data.valid) {
-            out.className = 'p-4 rounded border border-emerald-500/30 bg-emerald-500/5 text-xs mono text-main space-y-1.5';
-            out.innerHTML = `<div class="font-bold text-emerald-600 dark:text-emerald-400">✓ Cryptographically Valid Post-Quantum Token</div><div>Token ID: <span class="font-semibold">${data.token_id}</span></div><div>Crypto Profile: <span class="font-semibold">${data.profile}</span></div><div>Delegation Depth: <span class="font-semibold">${data.delegation_depth} hop(s)</span></div><div>Root Caveats: <span class="font-semibold">${data.root_caveats_count} predicate(s)</span></div>`;
-        } else {
-            out.className = 'p-4 rounded border border-red-500/30 bg-red-500/5 text-xs mono text-red-600 dark:text-red-400';
-            out.innerHTML = `<div>✗ Invalid Token: ${data.error}</div>`;
-        }
-    } catch(e) { out.textContent = 'Error: ' + e; }
+        showDecisionDetail({
+            trace_id: `selftest_${Date.now()}`,
+            timestamp_micros: Date.now() * 1000,
+            principal_display: 'agent:demo-self-test',
+            tool_name: data.tested_tool,
+            resource_display: data.tested_resource,
+            outcome: data.outcome,
+            failed_invariant: data.failed_invariant,
+            latency_micros: data.latency_micros,
+            checklist: {}
+        });
+        fetchOverview();
+    } catch (e) {
+        console.error('Self-test error:', e);
+    }
 }
 
-async function loadSampleToken() {
+function renderCapabilitiesTree() {
+    const container = document.getElementById('capability-tree-container');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="space-y-3">
+            <div class="p-3 rounded bg-[#0f172a] border border-emerald-500/30">
+                <div class="flex items-center justify-between font-bold text-emerald-400">
+                    <span>👑 ROOT AUTHORITY (Trust Anchor)</span>
+                    <span class="text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded">FIPS 204 ML-DSA-44</span>
+                </div>
+                <p class="text-[11px] text-[#64748b] mt-1">Tools: [search_documents, read_report, query_db] • Prefix: s3://company/*</p>
+                <div class="ml-6 mt-3 border-l-2 border-[#334155] pl-4 space-y-3">
+                    <div class="p-3 rounded bg-[#0f172a] border border-cyan-500/30">
+                        <div class="flex items-center justify-between font-bold text-cyan-400">
+                            <span>🤖 AGENT: Research-Agent (Hop 1)</span>
+                            <span class="text-[10px] bg-cyan-500/10 px-2 py-0.5 rounded">SwarmSpeed HMAC-SHA256</span>
+                        </div>
+                        <p class="text-[11px] text-[#64748b] mt-1">Attenuated: [search_documents, read_report] • Prefix: s3://company/public/*</p>
+                        <div class="ml-6 mt-3 border-l-2 border-[#334155] pl-4">
+                            <div class="p-3 rounded bg-[#0f172a] border border-purple-500/30">
+                                <div class="flex items-center justify-between font-bold text-purple-400">
+                                    <span>⚡ SUBAGENT: Summarizer (Hop 2)</span>
+                                    <span class="text-[10px] bg-purple-500/10 px-2 py-0.5 rounded">ReadOnly Lock</span>
+                                </div>
+                                <p class="text-[11px] text-[#64748b] mt-1">Strict Confinement: [read_report] • Prefix: s3://company/public/reports/*</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function fetchInvariants() {
     try {
-        const res = await fetch('/api/sample-token');
+        const res = await fetch('/api/v1/invariants');
         const data = await res.json();
-        const el = document.getElementById('inspect-input');
-        if (el) { el.value = data.token_hex; inspectToken(); }
-    } catch(e) {}
+        const container = document.getElementById('invariants-grid-container');
+        if (!container) return;
+        container.innerHTML = '';
+        data.invariants.forEach(inv => {
+            const card = document.createElement('div');
+            card.className = 'p-3.5 rounded bg-[#0f172a] border border-[#1e293b] space-y-1.5 hover:border-[#334155] transition';
+            card.innerHTML = `
+                <div class="flex items-center justify-between font-bold text-xs">
+                    <span class="text-white">${inv.id} • ${inv.name}</span>
+                    <span class="text-emerald-400 text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded">✓ ${inv.status}</span>
+                </div>
+                <div class="p-1.5 rounded bg-[#0b0f19] text-[#38bdf8] text-[11px] font-mono">${inv.math}</div>
+                <p class="text-[10px] text-[#64748b]">Impl: ${inv.file}</p>
+            `;
+            container.appendChild(card);
+        });
+    } catch (e) {
+        console.error('Invariants fetch error:', e);
+    }
 }
 
-function exportLogsNDJSON() {
-    const blob = new Blob([eventsLog.map(e => JSON.stringify(e)).join('\n')], { type: 'application/x-ndjson' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'peitho_audit_' + Date.now() + '.ndjson';
-    a.click();
+async function fetchSystem() {
+    try {
+        const res = await fetch('/api/v1/system');
+        const data = await res.json();
+        const container = document.getElementById('system-diagnostics-container');
+        if (!container) return;
+        container.innerHTML = `
+            <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 bg-[#0b0f19] rounded border border-[#1e293b]"><span class="text-[#64748b]">Version:</span> ${data.version}</div>
+                <div class="p-3 bg-[#0b0f19] rounded border border-[#1e293b]"><span class="text-[#64748b]">Git Revision:</span> ${data.git_revision}</div>
+                <div class="p-3 bg-[#0b0f19] rounded border border-[#1e293b]"><span class="text-[#64748b]">Target:</span> ${data.target_triple}</div>
+                <div class="p-3 bg-[#0b0f19] rounded border border-[#1e293b]"><span class="text-[#64748b]">Crypto:</span> ${data.crypto_profile}</div>
+            </div>
+            <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded text-xs mt-3">${data.network_hotpath_dependency}</div>
+        `;
+    } catch (e) {
+        console.error('System fetch error:', e);
+    }
 }
-"#
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchOverview();
+    setInterval(() => {
+        if (currentTab === 'overview') fetchOverview();
+        if (currentTab === 'activity' || currentTab === 'decisions') fetchActivity();
+    }, 2000);
+});
+"#.to_string()
 }

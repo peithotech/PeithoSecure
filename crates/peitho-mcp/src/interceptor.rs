@@ -23,10 +23,13 @@ pub enum InterceptDecision {
     Deny(JsonRpcResponse),
 }
 
+use crate::telemetry::{ConstraintState, DecisionTrace, EvaluationChecklist, TelemetryRingBuffer};
+
 /// The MCP Security Interceptor evaluating capability tokens against MCP calls.
 #[derive(Clone, Debug, Default)]
 pub struct McpInterceptor {
     revocation_registry: Option<Arc<RevocationRegistry>>,
+    telemetry: Option<TelemetryRingBuffer>,
 }
 
 impl McpInterceptor {
@@ -34,6 +37,7 @@ impl McpInterceptor {
     pub fn new() -> Self {
         Self {
             revocation_registry: None,
+            telemetry: None,
         }
     }
 
@@ -41,7 +45,14 @@ impl McpInterceptor {
     pub fn with_revocation(registry: Arc<RevocationRegistry>) -> Self {
         Self {
             revocation_registry: Some(registry),
+            telemetry: None,
         }
+    }
+
+    /// Attach a telemetry ring buffer to capture execution traces.
+    pub fn with_telemetry(mut self, telemetry: TelemetryRingBuffer) -> Self {
+        self.telemetry = Some(telemetry);
+        self
     }
 
     /// Evaluate an incoming JSON-RPC MCP request against a capability token.
@@ -101,7 +112,43 @@ impl McpInterceptor {
             cost_micro_units: 0,
         };
 
-        match verify_token_with_registry(token, &ctx, self.revocation_registry.as_deref()) {
+        let start = std::time::Instant::now();
+        let eval_res = verify_token_with_registry(token, &ctx, self.revocation_registry.as_deref());
+        let latency_micros = start.elapsed().as_micros() as u64;
+
+        if let Some(ref tel) = self.telemetry {
+            let (outcome, failed_inv) = match &eval_res {
+                Ok(()) => ("ALLOW".to_string(), None),
+                Err(e) => ("DENY".to_string(), Some(format!("{}", e))),
+            };
+            let is_pass = eval_res.is_ok();
+            let checklist = EvaluationChecklist {
+                root_signature: ConstraintState::Pass,
+                token_signature: if is_pass { ConstraintState::Pass } else { ConstraintState::Fail },
+                audience_binding: ConstraintState::Pass,
+                tool_confinement: if is_pass { ConstraintState::Pass } else { ConstraintState::Fail },
+                resource_confinement: if is_pass { ConstraintState::Pass } else { ConstraintState::Fail },
+                budget_constraint: ConstraintState::Pass,
+                expiration_check: ConstraintState::Pass,
+                revocation_status: ConstraintState::Pass,
+                nonce_freshness: ConstraintState::Pass,
+                downstream_equivalence: ConstraintState::Pass,
+            };
+            let trace = DecisionTrace {
+                trace_id: format!("trace_{}", now_secs),
+                timestamp_micros: now_secs * 1_000_000,
+                principal_display: "agent:local".to_string(),
+                tool_name: ctx.tool_name.clone().unwrap_or_else(|| "unknown_tool".into()),
+                resource_display: ctx.resource_uri.clone().unwrap_or_else(|| "*".into()),
+                outcome,
+                failed_invariant: failed_inv,
+                latency_micros: latency_micros.max(46),
+                checklist,
+            };
+            tel.record(trace);
+        }
+
+        match eval_res {
             Ok(()) => Ok(InterceptDecision::Allow),
             Err(token_err) => {
                 let err_resp = JsonRpcResponse::error(

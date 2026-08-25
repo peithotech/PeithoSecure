@@ -16,6 +16,7 @@ pub mod interceptor;
 pub mod process_wrap;
 pub mod protocol;
 pub mod proxy;
+pub mod telemetry;
 pub mod webhook;
 
 pub use error::McpError;
@@ -24,4 +25,5 @@ pub use interceptor::{InterceptDecision, McpInterceptor, PEITHO_ERR_TOKEN_MISSIN
 pub use process_wrap::ProcessShield;
 pub use protocol::{extract_tool_call_meta, JsonRpcError, JsonRpcRequest, JsonRpcResponse, ToolCallMeta};
 pub use proxy::McpProxy;
+pub use telemetry::{ConstraintState, DecisionTrace, EvaluationChecklist, TelemetryRingBuffer, TelemetryStats};
 pub use webhook::{BreakGlassIncident, IncidentSeverity, IncidentStatus};
