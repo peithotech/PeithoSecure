@@ -7,12 +7,12 @@ pub fn get_stylesheet() -> &'static str {
     --bg: #ffffff;
     --bg-surface: #f4f4f5;
     --bg-surface-hover: #e4e4e7;
-    --border: #d4d4d8;
+    --border: #e4e4e7;
     --border-strong: #18181b;
-    --text-main: #000000;
+    --text-main: #09090b;
     --text-sub: #52525b;
     --text-muted: #71717a;
-    --badge-bg: #000000;
+    --badge-bg: #18181b;
     --badge-text: #ffffff;
     --font-mono: 'JetBrains Mono', monospace;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -20,11 +20,11 @@ pub fn get_stylesheet() -> &'static str {
 
 [data-theme="dark"] {
     --bg: #000000;
-    --bg-surface: #0e0e10;
-    --bg-surface-hover: #18181b;
-    --border: #27272a;
+    --bg-surface: #0a0a0c;
+    --bg-surface-hover: #141416;
+    --border: #262626;
     --border-strong: #ffffff;
-    --text-main: #ffffff;
+    --text-main: #fafafa;
     --text-sub: #a1a1aa;
     --text-muted: #71717a;
     --badge-bg: #ffffff;
@@ -37,7 +37,7 @@ body {
     color: var(--text-main);
     font-family: var(--font-sans);
     line-height: 1.5;
-    transition: background-color 0.1s ease, color 0.1s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .mono { font-family: var(--font-mono); }
@@ -54,7 +54,7 @@ body {
     background-color: var(--badge-bg);
     color: var(--badge-text);
     padding: 2px 8px;
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -64,7 +64,7 @@ body {
     border: 1px solid var(--border);
     color: var(--text-main);
     padding: 2px 8px;
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 11px;
 }
 
@@ -77,6 +77,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    font-family: var(--font-mono);
     transition: all 0.15s ease;
 }
 .btn-mono:hover {
@@ -84,29 +85,17 @@ body {
     border-color: var(--border-strong);
 }
 
-.btn-mono-primary {
-    background-color: var(--badge-bg);
-    color: var(--badge-text);
-    border: 1px solid var(--badge-bg);
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-}
-.btn-mono-primary:hover {
-    opacity: 0.85;
-}
-
 .tab-btn {
     background: transparent;
     border: none;
-    padding: 12px 18px;
-    font-size: 13px;
+    padding: 10px 16px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-sub);
     cursor: pointer;
     border-bottom: 2px solid transparent;
+    font-family: var(--font-mono);
+    transition: all 0.15s ease;
 }
 .tab-btn.active {
     color: var(--text-main);
@@ -114,33 +103,16 @@ body {
     border-bottom-color: var(--border-strong);
 }
 
-.table-mono {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-}
-.table-mono th {
-    text-align: left;
-    padding: 10px 14px;
-    font-weight: 600;
-    color: var(--text-sub);
-    border-bottom: 1px solid var(--border);
+.card-box {
     background-color: var(--bg-surface);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.table-mono td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-}
-.table-mono tr:hover td {
-    background-color: var(--bg-surface-hover);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
 }
 
 [data-theme="dark"] .logo-light { display: none !important; }
-[data-theme="dark"] .logo-dark { display: block !important; transform: scale(0.96); transform-origin: center; }
-[data-theme="light"] .logo-light { display: block !important; transform: scale(1.0); transform-origin: center; }
+[data-theme="dark"] .logo-dark { display: block !important; }
+[data-theme="light"] .logo-light { display: block !important; }
 [data-theme="light"] .logo-dark { display: none !important; }
 "#
 }
