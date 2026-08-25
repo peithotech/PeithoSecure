@@ -7,7 +7,7 @@ use peitho_core::generate_dsa_keypair;
 use peitho_token::{
     attenuate_hmac, compute_root_commitment, derive_root_ephemeral_key,
     verify_token_with_registry, CapabilityToken, Caveat, CryptoProfile, InvocationContext,
-    RevocationRegistry, TokenError,
+    RevocationRegistry,
 };
 use tokio::task::JoinSet;
 
