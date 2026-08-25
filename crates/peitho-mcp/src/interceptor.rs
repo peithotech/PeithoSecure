@@ -79,7 +79,18 @@ impl McpInterceptor {
         };
 
         let resource_uri = request.params.as_ref().and_then(|p| {
-            p.get("uri").or_else(|| p.get("resource")).and_then(|v| v.as_str()).map(|s| s.to_string())
+            p.get("uri")
+                .or_else(|| p.get("resource"))
+                .or_else(|| p.get("target"))
+                .or_else(|| p.get("path"))
+                .or_else(|| p.get("arguments").and_then(|a| {
+                    a.get("uri")
+                        .or_else(|| a.get("resource"))
+                        .or_else(|| a.get("target"))
+                        .or_else(|| a.get("path"))
+                }))
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string())
         });
 
         let ctx = InvocationContext {
