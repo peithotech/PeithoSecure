@@ -52,4 +52,11 @@ pub enum TokenError {
         /// Reason for revocation.
         reason: String,
     },
+
+    /// Single-use execution nonce was already consumed and burned (replay attack blocked).
+    #[error("replay blocked: single-use execution nonce {nonce} has already been burned")]
+    NonceAlreadyBurned {
+        /// The replayed nonce.
+        nonce: u64,
+    },
 }

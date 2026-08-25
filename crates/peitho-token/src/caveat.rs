@@ -18,6 +18,8 @@ pub enum Caveat {
     MaxBudgetMicroUnits(u64),
     /// Session Taint Lock: agent interacted with untrusted content; mutations forbidden.
     TaintLock,
+    /// Single-use execution nonce (atomically burned on first invocation to eliminate replay).
+    Nonce(u64),
     /// Custom domain-specific key-value condition.
     Custom {
         /// Condition name.
@@ -83,6 +85,18 @@ pub fn validate_monotonic_hop(parent_caveats: &[Caveat], child_caveats: &[Caveat
                             return Err(TokenError::InvalidDelegationChain(format!(
                                 "monotonicity violation: child prefix '{}' escapes parent prefix '{}'",
                                 child_prefix, parent_prefix
+                            )));
+                        }
+                    }
+                }
+            }
+            Caveat::Nonce(parent_nonce) => {
+                for child in child_caveats {
+                    if let Caveat::Nonce(child_nonce) = child {
+                        if child_nonce != parent_nonce {
+                            return Err(TokenError::InvalidDelegationChain(format!(
+                                "monotonicity violation: child altered single-use nonce ({} != {})",
+                                child_nonce, parent_nonce
                             )));
                         }
                     }

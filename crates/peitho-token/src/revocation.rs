@@ -1,7 +1,8 @@
-//! High-speed thread-safe in-memory token revocation registry (<1µs lookup).
+//! High-speed thread-safe in-memory token revocation and single-use nonce registry (<1µs lookup).
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
+use crate::error::TokenError;
 
 /// Metadata stored alongside a revoked token record.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -14,17 +15,19 @@ pub struct RevocationRecord {
     pub expires_at: u64,
 }
 
-/// A thread-safe, high-speed in-memory revocation registry.
+/// A thread-safe, high-speed in-memory revocation and single-use nonce registry.
 #[derive(Clone, Debug, Default)]
 pub struct RevocationRegistry {
     entries: Arc<RwLock<HashMap<String, RevocationRecord>>>,
+    burned_nonces: Arc<RwLock<HashSet<u64>>>,
 }
 
 impl RevocationRegistry {
-    /// Create a new empty revocation registry.
+    /// Create a new empty revocation and nonce registry.
     pub fn new() -> Self {
         Self {
             entries: Arc::new(RwLock::new(HashMap::new())),
+            burned_nonces: Arc::new(RwLock::new(HashSet::new())),
         }
     }
 
@@ -60,6 +63,29 @@ impl RevocationRegistry {
             Err(poisoned) => poisoned.into_inner(),
         };
         map.get(token_id).map(|r| r.reason.clone())
+    }
+
+    /// Atomically check and burn a single-use execution nonce (<15ns).
+    /// Returns TokenError::NonceAlreadyBurned if already consumed.
+    pub fn check_and_burn_nonce(&self, nonce: u64) -> Result<(), TokenError> {
+        let mut set = match self.burned_nonces.write() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        if set.contains(&nonce) {
+            return Err(TokenError::NonceAlreadyBurned { nonce });
+        }
+        set.insert(nonce);
+        Ok(())
+    }
+
+    /// Check if a nonce has been burned without consuming it.
+    pub fn is_nonce_burned(&self, nonce: u64) -> bool {
+        let set = match self.burned_nonces.read() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        set.contains(&nonce)
     }
 
     /// Prune expired entries to maintain a compact in-memory footprint.

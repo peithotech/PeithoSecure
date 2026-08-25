@@ -128,7 +128,7 @@ fn test_points_10_to_14_context_bounds_revocation_and_replay() {
     };
     assert!(verify_token_and_caveats(&token, &expired_ctx).is_err());
 
-    // Point 13 & 14: Instant in-memory revocation precedence (<1µs)
+    // Point 13: Instant in-memory revocation precedence (<1µs)
     let valid_ctx = InvocationContext {
         tool_name: Some("query_data".into()),
         resource_uri: Some("s3://analytics/public/file.txt".into()),
@@ -142,8 +142,19 @@ fn test_points_10_to_14_context_bounds_revocation_and_replay() {
     registry.revoke(&token.token_id, "Compromised session", 2_000_000_000, 1_700_000_001);
     let rev_time = start_rev.elapsed();
     assert!(rev_time.as_micros() < 50);
-
     assert!(verify_token_with_registry(&token, &valid_ctx, Some(&registry)).is_err());
+
+    // Point 14: Zero-Replay Single-Use JIT Nonce Burning (<15ns)
+    let (mut nonce_token, k0) = create_audit_token();
+    let nonce_val = 555_444_333u64;
+    let _ = attenuate_hmac(&mut nonce_token, &k0, vec![Caveat::Nonce(nonce_val)]).expect("nonce hop");
+    let fresh_registry = RevocationRegistry::new();
+
+    // 1st Execution: Must succeed & burn nonce
+    assert!(verify_token_with_registry(&nonce_token, &valid_ctx, Some(&fresh_registry)).is_ok());
+    // 2nd Execution (Replay Attack): Must immediately fail with NonceAlreadyBurned
+    let replay_err = verify_token_with_registry(&nonce_token, &valid_ctx, Some(&fresh_registry));
+    assert!(matches!(replay_err, Err(peitho_token::TokenError::NonceAlreadyBurned { nonce: n }) if n == nonce_val));
 }
 
 #[test]

@@ -99,6 +99,18 @@ pub fn verify_token_with_registry(
                 reason,
             });
         }
+        for caveat in &token.root_caveats {
+            if let Caveat::Nonce(nonce) = caveat {
+                registry.check_and_burn_nonce(*nonce)?;
+            }
+        }
+        for block in &token.delegations {
+            for caveat in &block.caveats {
+                if let Caveat::Nonce(nonce) = caveat {
+                    registry.check_and_burn_nonce(*nonce)?;
+                }
+            }
+        }
     }
 
     let root_digest = compute_root_commitment(&token.token_id, token.profile, &token.root_caveats)?;
@@ -220,7 +232,7 @@ fn evaluate_caveats(caveats: &[Caveat], ctx: &InvocationContext) -> Result<(), T
                     }
                 }
             }
-            Caveat::Custom { .. } => {}
+            Caveat::Nonce(_) | Caveat::Custom { .. } => {}
         }
     }
     Ok(())

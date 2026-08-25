@@ -209,3 +209,28 @@ fn test_taint_lock_session_containment() {
     };
     assert!(verify_token_and_caveats(&token, &mutation_ctx).is_err(), "Taint-locked session must not execute write operations!");
 }
+
+#[test]
+fn test_single_use_nonce_burns_and_prevents_replay() {
+    let (mut token, key) = create_test_token();
+    let registry = peitho_token::RevocationRegistry::new();
+    let nonce = 9876543210u64;
+
+    // Delegate token with single-use Nonce caveat
+    let _ = attenuate_hmac(&mut token, &key, vec![Caveat::Nonce(nonce)]).expect("nonce hop");
+
+    let ctx = InvocationContext {
+        tool_name: Some("query_database".into()),
+        resource_uri: Some("s3://data/public/file.txt".into()),
+        current_time_secs: 1_700_000_000,
+        is_read_only: true,
+        cost_micro_units: 10,
+    };
+
+    // 1. First execution: MUST SUCCEED and atomically burn nonce
+    assert!(peitho_token::verify_token_with_registry(&token, &ctx, Some(&registry)).is_ok());
+
+    // 2. Second execution (Replay attack): MUST FAIL with NonceAlreadyBurned
+    let replay_res = peitho_token::verify_token_with_registry(&token, &ctx, Some(&registry));
+    assert!(matches!(replay_res, Err(peitho_token::TokenError::NonceAlreadyBurned { nonce: n }) if n == nonce));
+}
