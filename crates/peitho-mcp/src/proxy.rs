@@ -19,6 +19,13 @@ impl McpProxy {
         }
     }
 
+    /// Create a new MCP Proxy instance with an active revocation registry.
+    pub fn with_revocation(registry: std::sync::Arc<peitho_token::RevocationRegistry>) -> Self {
+        Self {
+            interceptor: McpInterceptor::with_revocation(registry),
+        }
+    }
+
     /// Process a raw JSON-RPC line message from an AI Agent.
     pub fn process_message<F>(
         &self,
