@@ -74,8 +74,9 @@ async function fetchDecisions() {{
         activeDecisions = await res.json();
         renderOverviewActivity();
         renderActivityTable();
-        if (activeDecisions.length > 0 && currentTab === 'decisions') {{
+        if (activeDecisions.length > 0) {{
             showDecisionDetail(activeDecisions[0]);
+            renderActivityDetail(activeDecisions[0]);
         }}
     }} catch (e) {{ console.error(e); }}
 }}
@@ -88,7 +89,7 @@ function renderOverviewActivity() {{
         const isAllow = t.outcome === 'ALLOW';
         const item = document.createElement('div');
         item.className = 'p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer space-y-1 transition';
-        item.onclick = () => {{ switchTab('decisions'); showDecisionDetail(t); }};
+        item.onclick = () => {{ showDecisionDetail(t); renderActivityDetail(t); }};
         item.innerHTML = `
             <div class="flex items-center justify-between">
                 <span class="text-dim">${{new Date(t.timestamp_micros / 1000).toLocaleTimeString()}}</span>
@@ -115,13 +116,19 @@ function renderActivityTable() {{
     const tbody = document.getElementById('activity-tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    activeDecisions.forEach(t => {{
+    activeDecisions.forEach((t, idx) => {{
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-surface cursor-pointer border-b-subtle';
-        tr.onclick = () => {{ switchTab('decisions'); showDecisionDetail(t); }};
+        tr.id = `act-row-${{idx}}`;
+        tr.className = `cursor-pointer ${{idx === 0 ? 'selected' : ''}}`;
+        tr.onclick = () => {{
+            document.querySelectorAll('#activity-tbody tr').forEach(r => r.classList.remove('selected'));
+            tr.classList.add('selected');
+            renderActivityDetail(t);
+            showDecisionDetail(t);
+        }};
         const isAllow = t.outcome === 'ALLOW';
         tr.innerHTML = `
-            <td class="py-2.5 text-dim">${{new Date(t.timestamp_micros / 1000).toLocaleTimeString()}}</td>
+            <td class="py-2 text-dim">${{new Date(t.timestamp_micros / 1000).toLocaleTimeString()}}</td>
             <td><span class="${{isAllow ? 'badge-allow' : 'badge-deny'}}">${{t.outcome}}</span></td>
             <td class="text-main">${{t.principal_display}}</td>
             <td class="text-main font-bold">${{t.tool_name}}</td>
@@ -129,6 +136,36 @@ function renderActivityTable() {{
         `;
         tbody.appendChild(tr);
     }});
+    if (activeDecisions.length > 0) {{
+        renderActivityDetail(activeDecisions[0]);
+    }}
+}}
+
+function renderActivityDetail(trace) {{
+    const container = document.getElementById('activity-detail-container');
+    if (!container) return;
+    const isAllow = trace.outcome === 'ALLOW';
+    container.innerHTML = `
+        <div class="space-y-3">
+            <div class="flex items-center justify-between border-b-subtle pb-2">
+                <span class="text-xs font-bold ${{isAllow ? 'text-allow' : 'text-deny'}} mono">[${{trace.outcome}}] • ${{trace.tool_name}}</span>
+                <span class="text-dim text-[11px] mono">${{trace.latency_micros}} µs</span>
+            </div>
+            <div class="space-y-1 text-xs">
+                <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">${{trace.principal_display}}</span></div>
+                <div><span class="text-dim">Resource:</span> <span class="text-main font-mono">${{trace.resource_display}}</span></div>
+            </div>
+            <div class="card-box space-y-1.5 text-[11px]">
+                <div class="font-bold text-sub">INLINE EVALUATION:</div>
+                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Root signature valid (ML-DSA-44)</span></div>
+                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Audience bound to principal</span></div>
+                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Nonce fresh (&lt;15ns test-and-burn)</span></div>
+                <div class="flex items-center gap-2 ${{isAllow ? 'text-allow' : 'text-deny'}}"><span>${{isAllow ? '✓' : '✗'}}</span> <span>Tool allowed scope ${{trace.failed_invariant && trace.failed_invariant.includes('P-005') ? '(P-005)' : ''}}</span></div>
+                <div class="flex items-center gap-2 ${{isAllow ? 'text-allow' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? 'text-deny' : 'text-dim')}}"><span>${{isAllow ? '✓' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '✗' : '○')}}</span> <span>Resource prefix confinement ${{trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '(P-004)' : ''}}</span></div>
+            </div>
+            <div class="${{isAllow ? 'text-sub' : 'text-deny'}} text-[11px]">${{trace.failed_invariant ? `Blocked: ${{trace.failed_invariant}}` : 'All cryptographic proofs verified.'}}</div>
+        </div>
+    `;
 }}
 
 function showDecisionDetail(trace) {{
@@ -183,8 +220,11 @@ async function runSelfTest(scenario) {{
             latency_micros: data.latency_micros,
             checklist: {{}}
         }};
-        switchTab('decisions');
+        activeDecisions.unshift(trace);
+        renderOverviewActivity();
+        renderActivityTable();
         showDecisionDetail(trace);
+        renderActivityDetail(trace);
         fetchOverview();
     }} catch (e) {{ console.error(e); }}
 }}

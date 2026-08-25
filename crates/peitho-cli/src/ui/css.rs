@@ -199,6 +199,32 @@ body {
     background-color: var(--bg-surface-hover);
 }
 
+.table-mono {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.table-mono th {
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+}
+.table-mono td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.1s ease;
+}
+.table-mono tr:hover td {
+    background-color: var(--bg-surface-hover);
+}
+.table-mono tr.selected td {
+    background-color: var(--bg-surface-hover);
+    font-weight: 600;
+}
+
 [data-theme="dark"] .logo-light { display: none !important; }
 [data-theme="dark"] .logo-dark { display: block !important; }
 [data-theme="light"] .logo-light { display: block !important; }

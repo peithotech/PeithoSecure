@@ -66,7 +66,6 @@ pub fn get_page_html() -> String {
     <main class="p-6 max-w-7xl mx-auto w-full flex-1 space-y-6">
         <!-- 1. OVERVIEW -->
         <section id="sec-overview" class="space-y-6">
-            <!-- Top Metric Banner -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="card-box space-y-1">
                     <span class="text-[11px] text-dim mono font-bold">AUTHORIZATIONS</span>
@@ -85,9 +84,7 @@ pub fn get_page_html() -> String {
                 </div>
             </div>
 
-            <!-- 2-Column Split: Activity + Authority Graph -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Left: Live Authorization Activity -->
                 <div class="lg:col-span-7 card-box space-y-4">
                     <div class="flex items-center justify-between border-b-subtle pb-2">
                         <h3 class="text-xs font-bold text-main uppercase mono">LIVE AUTHORIZATION ACTIVITY</h3>
@@ -96,7 +93,6 @@ pub fn get_page_html() -> String {
                     <div id="overview-activity-list" class="space-y-3 mono text-xs"></div>
                 </div>
 
-                <!-- Right: Authority Graph & Security Engine -->
                 <div class="lg:col-span-5 space-y-6">
                     <div class="card-box space-y-3">
                         <h3 class="text-xs font-bold text-main uppercase mono border-b-subtle pb-2">AUTHORITY GRAPH</h3>
@@ -145,25 +141,29 @@ pub fn get_page_html() -> String {
 
         <!-- 4. ACTIVITY STREAM -->
         <section id="sec-activity" class="hidden space-y-4">
-            <div class="card-box space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b-subtle pb-3">
-                    <h3 class="text-xs font-bold text-main uppercase mono">SECURITY EVENT STREAM</h3>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="setFilter('ALL')" class="pill-btn active" id="filter-btn-ALL">ALL</button>
-                        <button onclick="setFilter('ALLOW')" class="pill-btn" id="filter-btn-ALLOW">ALLOW</button>
-                        <button onclick="setFilter('DENY')" class="pill-btn" id="filter-btn-DENY">DENY</button>
-                        <button onclick="setFilter('REPLAY')" class="pill-btn" id="filter-btn-REPLAY">REPLAY</button>
-                        <button onclick="setFilter('TRAVERSAL')" class="pill-btn" id="filter-btn-TRAVERSAL">TRAVERSAL</button>
-                        <button onclick="setFilter('EXPIRED')" class="pill-btn" id="filter-btn-EXPIRED">EXPIRED</button>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 card-box space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b-subtle pb-3">
+                        <h3 class="text-xs font-bold text-main uppercase mono">SECURITY EVENT STREAM</h3>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="setFilter('ALL')" class="pill-btn active" id="filter-btn-ALL">ALL</button>
+                            <button onclick="setFilter('ALLOW')" class="pill-btn" id="filter-btn-ALLOW">ALLOW</button>
+                            <button onclick="setFilter('DENY')" class="pill-btn" id="filter-btn-DENY">DENY</button>
+                            <button onclick="setFilter('REPLAY')" class="pill-btn" id="filter-btn-REPLAY">REPLAY</button>
+                            <button onclick="setFilter('TRAVERSAL')" class="pill-btn" id="filter-btn-TRAVERSAL">TRAVERSAL</button>
+                            <button onclick="setFilter('EXPIRED')" class="pill-btn" id="filter-btn-EXPIRED">EXPIRED</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="table-mono w-full text-left mono">
+                            <thead><tr><th>TIME</th><th>RESULT</th><th>PRINCIPAL</th><th>TOOL</th><th>INVARIANT</th></tr></thead>
+                            <tbody id="activity-tbody"></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs mono">
-                        <thead class="border-b-subtle text-dim">
-                            <tr><th class="py-2.5">TIME</th><th>RESULT</th><th>PRINCIPAL</th><th>TOOL</th><th>INVARIANT</th></tr>
-                        </thead>
-                        <tbody id="activity-tbody" class="divide-y divide-border"></tbody>
-                    </table>
+                <div class="lg:col-span-5 card-box space-y-4">
+                    <h3 class="text-xs font-bold text-main uppercase mono border-b-subtle pb-2">EVENT FORENSICS</h3>
+                    <div id="activity-detail-container" class="mono text-xs space-y-3"></div>
                 </div>
             </div>
         </section>

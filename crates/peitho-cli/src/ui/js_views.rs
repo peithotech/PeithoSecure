@@ -53,12 +53,12 @@ function renderTokens() {
     const tbl = document.getElementById('tokens-table-container');
     if (!tbl) return;
     tbl.innerHTML = `
-        <table class="w-full text-left text-xs mono">
-            <thead class="border-b-subtle text-dim"><tr><th>ID</th><th>SUBJECT</th><th>STATUS</th><th>EXPIRES</th></tr></thead>
-            <tbody class="divide-y divide-border">
-                <tr class="hover:bg-surface cursor-pointer" onclick="selectToken('researcher')"><td class="py-2 text-main">a91f...44b1</td><td class="text-main">researcher</td><td><span class="badge-allow">ACTIVE</span></td><td class="text-dim">11.2s</td></tr>
-                <tr class="hover:bg-surface cursor-pointer" onclick="selectToken('worker')"><td class="py-2 text-main">b72c...99a0</td><td class="text-main">worker</td><td><span class="badge-deny">REVOKED</span></td><td class="text-dim">—</td></tr>
-                <tr class="hover:bg-surface cursor-pointer" onclick="selectToken('analyst')"><td class="py-2 text-main">c18a...ee12</td><td class="text-main">analyst</td><td><span class="badge-outline">BURNED</span></td><td class="text-dim">—</td></tr>
+        <table class="table-mono w-full text-left mono">
+            <thead><tr><th>ID</th><th>SUBJECT</th><th>STATUS</th><th>EXPIRES</th></tr></thead>
+            <tbody>
+                <tr id="tok-row-researcher" class="cursor-pointer selected" onclick="selectToken('researcher')"><td class="py-2 text-main">a91f...44b1</td><td class="text-main">researcher</td><td><span class="badge-allow">ACTIVE</span></td><td class="text-dim">11.2s</td></tr>
+                <tr id="tok-row-worker" class="cursor-pointer" onclick="selectToken('worker')"><td class="py-2 text-main">b72c...99a0</td><td class="text-main">worker</td><td><span class="badge-deny">REVOKED</span></td><td class="text-dim">—</td></tr>
+                <tr id="tok-row-analyst" class="cursor-pointer" onclick="selectToken('analyst')"><td class="py-2 text-main">c18a...ee12</td><td class="text-main">analyst</td><td><span class="badge-outline">BURNED</span></td><td class="text-dim">—</td></tr>
             </tbody>
         </table>
     `;
@@ -66,6 +66,9 @@ function renderTokens() {
 }
 
 function selectToken(key) {
+    document.querySelectorAll('#tokens-table-container tr').forEach(r => r.classList.remove('selected'));
+    const r = document.getElementById(`tok-row-${key}`);
+    if (r) r.classList.add('selected');
     const box = document.getElementById('selected-token-container');
     if (!box) return;
     box.innerHTML = `
@@ -81,7 +84,7 @@ function selectToken(key) {
                 <div class="text-sub">✓ budget = 100 µ-units</div>
             </div>
             <div><span class="text-dim">Nonce:</span> <span class="text-main font-mono">7f9a88c2...</span></div>
-            <div><span class="text-dim">State:</span> <span class="badge-allow">ACTIVE</span></div>
+            <div><span class="text-dim">State:</span> <span class="${key === 'worker' ? 'badge-deny' : 'badge-allow'}">${key === 'worker' ? 'REVOKED' : (key === 'analyst' ? 'BURNED' : 'ACTIVE')}</span></div>
         </div>
     `;
 }
@@ -90,15 +93,18 @@ function renderTools() {
     const list = document.getElementById('tools-list-container');
     if (!list) return;
     list.innerHTML = `
-        <div onclick="selectTool('search_documents', 'ALLOW')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">search_documents</span><span class="badge-allow">ALLOW 892</span></div>
-        <div onclick="selectTool('read_document', 'ALLOW')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">read_document</span><span class="badge-allow">ALLOW 641</span></div>
-        <div onclick="selectTool('manage_secrets', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">manage_secrets</span><span class="badge-deny">DENY 31</span></div>
-        <div onclick="selectTool('execute_wire_transfer', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">execute_wire_transfer</span><span class="badge-deny">DENY 12</span></div>
+        <div id="tool-row-search_documents" onclick="selectTool('search_documents', 'ALLOW')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">search_documents</span><span class="badge-allow">ALLOW 892</span></div>
+        <div id="tool-row-read_document" onclick="selectTool('read_document', 'ALLOW')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">read_document</span><span class="badge-allow">ALLOW 641</span></div>
+        <div id="tool-row-manage_secrets" onclick="selectTool('manage_secrets', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">manage_secrets</span><span class="badge-deny">DENY 31</span></div>
+        <div id="tool-row-execute_wire_transfer" onclick="selectTool('execute_wire_transfer', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">execute_wire_transfer</span><span class="badge-deny">DENY 12</span></div>
     `;
     selectTool('manage_secrets', 'DENY');
 }
 
 function selectTool(name, status) {
+    document.querySelectorAll('#tools-list-container > div').forEach(d => d.classList.remove('selected', 'border-strong'));
+    const row = document.getElementById(`tool-row-${name}`);
+    if (row) row.classList.add('selected', 'border-strong');
     const box = document.getElementById('tool-detail-container');
     if (!box) return;
     box.innerHTML = `
