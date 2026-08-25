@@ -33,6 +33,7 @@ pub fn get_page_html() -> String {
                 <div class="flex items-center gap-2">
                     <span class="font-bold text-sm tracking-tight text-main mono">PEITHO COMMUNITY</span>
                     <span class="badge-outline mono">LOCAL INSTANCE ●</span>
+                    <span class="badge-outline text-[10px] text-dim mono">DEMO DATA</span>
                 </div>
                 <div class="flex items-center gap-3 text-[11px] text-dim mono mt-0.5">
                     <span>UI <span class="text-main">127.0.0.1:4040</span></span>
@@ -73,7 +74,7 @@ pub fn get_page_html() -> String {
                     <p class="text-xs text-allow mono font-bold" id="stat-auth-sub">1,237 ALLOW</p>
                 </div>
                 <div class="card-box space-y-1">
-                    <span class="text-[11px] text-dim mono font-bold">DENIED PROBES</span>
+                    <span class="text-[11px] text-dim mono font-bold">DENIED REQUESTS</span>
                     <div class="text-3xl font-bold text-main mono" id="stat-denied-count">47</div>
                     <p class="text-xs text-deny mono font-bold" id="stat-denied-sub">47 BLOCKED</p>
                 </div>
