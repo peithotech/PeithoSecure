@@ -1,5 +1,5 @@
 //! HTML page structure for the Peitho Community developer dashboard.
-//! Pure monochrome design with automatic time-based Dark and Light modes.
+//! Pure monochrome design with selective Red/Green for main security actions.
 
 use super::css::get_stylesheet;
 use super::js::get_javascript;
@@ -39,13 +39,13 @@ pub fn get_page_html() -> String {
         </div>
 
         <div class="flex items-center space-x-2 text-xs mono">
-            <button onclick="runSelfTest('valid_authorization')" class="btn-mono">
+            <button onclick="runSelfTest('valid_authorization')" class="btn-mono btn-allow">
                 ⚡ Valid Test
             </button>
-            <button onclick="runSelfTest('resource_traversal')" class="btn-mono">
+            <button onclick="runSelfTest('resource_traversal')" class="btn-mono btn-deny">
                 🛡️ Test Traversal Block
             </button>
-            <button onclick="runSelfTest('unauthorized_tool')" class="btn-mono">
+            <button onclick="runSelfTest('unauthorized_tool')" class="btn-mono btn-deny">
                 🛡️ Test Tool Block
             </button>
             <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn-mono">
@@ -73,12 +73,12 @@ pub fn get_page_html() -> String {
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div class="card-box space-y-1">
                     <span class="text-[11px] text-dim mono">AUTHORIZATIONS</span>
-                    <div class="text-2xl font-bold text-main mono" id="stat-auth-count">0</div>
-                    <p class="text-[11px] text-sub mono">100% Local In-Memory</p>
+                    <div class="text-2xl font-bold text-allow mono" id="stat-auth-count">0</div>
+                    <p class="text-[11px] text-sub mono">Allowed In-Memory</p>
                 </div>
                 <div class="card-box space-y-1">
                     <span class="text-[11px] text-dim mono">DENIED PROBES</span>
-                    <div class="text-2xl font-bold text-main mono" id="stat-denied-count">0</div>
+                    <div class="text-2xl font-bold text-deny mono" id="stat-denied-count">0</div>
                     <p class="text-[11px] text-dim mono">Attacks Blocked</p>
                 </div>
                 <div class="card-box space-y-1">
@@ -88,7 +88,7 @@ pub fn get_page_html() -> String {
                 </div>
                 <div class="card-box space-y-1">
                     <span class="text-[11px] text-dim mono">LOCAL STATUS</span>
-                    <div class="text-sm font-bold text-main mono flex items-center gap-1.5 mt-2">
+                    <div class="text-sm font-bold text-allow mono flex items-center gap-1.5 mt-2">
                         <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span> ONLINE (PORT 8080)
                     </div>
                     <p class="text-[11px] text-dim mono">Zero Network Dependency</p>
@@ -99,12 +99,12 @@ pub fn get_page_html() -> String {
             <div class="card-box space-y-3">
                 <h3 class="text-xs font-bold text-sub uppercase mono tracking-wider">Local Security Health Checklist</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs mono">
-                    <div class="flex items-center gap-2 text-main"><span>✓</span> <span class="text-sub">Root Authority (ML-DSA-44)</span></div>
-                    <div class="flex items-center gap-2 text-main"><span>✓</span> <span class="text-sub">Token Verifier (Zero-Allocation)</span></div>
-                    <div class="flex items-center gap-2 text-main"><span>✓</span> <span class="text-sub">Replay Protection (&lt;15ns Nonce)</span></div>
-                    <div class="flex items-center gap-2 text-main"><span>✓</span> <span class="text-sub">Revocation Store (In-Memory)</span></div>
-                    <div class="flex items-center gap-2 text-main"><span>✓</span> <span class="text-sub">Persistence (Atomic POSIX)</span></div>
-                    <div class="flex items-center gap-2 text-main"><span>✓</span> <span class="text-sub">Observability (P-019 Non-Blocking)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-allow">✓</span> <span class="text-sub">Root Authority (ML-DSA-44)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-allow">✓</span> <span class="text-sub">Token Verifier (Zero-Allocation)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-allow">✓</span> <span class="text-sub">Replay Protection (&lt;15ns Nonce)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-allow">✓</span> <span class="text-sub">Revocation Store (In-Memory)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-allow">✓</span> <span class="text-sub">Persistence (Atomic POSIX)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-allow">✓</span> <span class="text-sub">Observability (P-019 Non-Blocking)</span></div>
                 </div>
             </div>
         </section>

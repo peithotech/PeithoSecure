@@ -75,9 +75,9 @@ async function fetchActivity() {
                 <td class="py-2.5 text-dim">${new Date(t.timestamp_micros / 1000).toLocaleTimeString()}</td>
                 <td class="text-main">${t.principal_display}</td>
                 <td class="text-main font-bold font-mono">${t.tool_name}</td>
-                <td><span class="badge-outline text-[10px] font-bold ${isAllow ? 'bg-surface' : 'badge-mono'}">${t.outcome}</span></td>
+                <td><span class="${isAllow ? 'badge-allow' : 'badge-deny'}">${t.outcome}</span></td>
                 <td class="text-dim">${t.latency_micros} µs</td>
-                <td class="text-sub">${t.failed_invariant || '—'}</td>
+                <td class="${isAllow ? 'text-sub' : 'text-deny'}">${t.failed_invariant || '—'}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -91,7 +91,7 @@ function showDecisionDetail(trace) {
     container.innerHTML = `
         <div class="card-box space-y-3">
             <div class="flex items-center justify-between border-b-subtle pb-2">
-                <span class="font-bold text-sm text-main mono">[${trace.outcome}] • ${trace.tool_name}</span>
+                <span class="font-bold text-sm ${isAllow ? 'text-allow' : 'text-deny'} mono">[${trace.outcome}] • ${trace.tool_name}</span>
                 <span class="text-dim mono">${trace.latency_micros} µs evaluation</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
@@ -100,13 +100,13 @@ function showDecisionDetail(trace) {
             </div>
             <div class="border-t-subtle pt-3 space-y-1.5 text-xs">
                 <div class="font-bold text-sub mb-1">CONSTRAINT EVALUATION CHECKLIST:</div>
-                <div class="flex items-center gap-2 text-main"><span>✓ PASS</span> <span class="text-sub">Root ML-DSA-44 Signature Valid</span></div>
-                <div class="flex items-center gap-2 text-main"><span>✓ PASS</span> <span class="text-sub">Audience Principal Bound</span></div>
-                <div class="flex items-center gap-2 text-main"><span>${isAllow ? '✓ PASS' : '✕ FAIL'}</span> <span class="text-sub">Tool Confinement Scope</span></div>
-                <div class="flex items-center gap-2 text-main"><span>${isAllow ? '✓ PASS' : '✕ FAIL'}</span> <span class="text-sub">Resource Prefix Confinement</span></div>
+                <div class="flex items-center gap-2 text-allow"><span>✓ PASS</span> <span class="text-sub">Root ML-DSA-44 Signature Valid</span></div>
+                <div class="flex items-center gap-2 text-allow"><span>✓ PASS</span> <span class="text-sub">Audience Principal Bound</span></div>
+                <div class="flex items-center gap-2 ${isAllow ? 'text-allow' : 'text-deny'}"><span>${isAllow ? '✓ PASS' : '✕ FAIL'}</span> <span class="text-sub">Tool Confinement Scope</span></div>
+                <div class="flex items-center gap-2 ${isAllow ? 'text-allow' : 'text-deny'}"><span>${isAllow ? '✓ PASS' : '✕ FAIL'}</span> <span class="text-sub">Resource Prefix Confinement</span></div>
                 <div class="flex items-center gap-2 text-dim"><span>${isAllow ? '✓ PASS' : '○ NOT EVALUATED'}</span> <span>Nonce & Replay Defense</span></div>
             </div>
-            ${trace.failed_invariant ? `<div class="p-2 border-subtle bg-surface text-main rounded text-xs">Failed Invariant: <span class="font-bold">${trace.failed_invariant}</span></div>` : ''}
+            ${trace.failed_invariant ? `<div class="p-2 border-subtle bg-surface text-deny rounded text-xs">Failed Invariant: <span class="font-bold">${trace.failed_invariant}</span></div>` : ''}
         </div>
     `;
     switchTab('decisions');
@@ -182,7 +182,7 @@ async function fetchInvariants() {
             card.innerHTML = `
                 <div class="flex items-center justify-between font-bold text-xs">
                     <span class="text-main">${inv.id} • ${inv.name}</span>
-                    <span class="badge-outline text-[10px]">✓ ${inv.status}</span>
+                    <span class="badge-allow text-[10px]">✓ ${inv.status}</span>
                 </div>
                 <div class="p-1.5 rounded bg-surface text-main text-[11px] mono border-subtle">${inv.math}</div>
                 <p class="text-[10px] text-dim">Impl: ${inv.file}</p>

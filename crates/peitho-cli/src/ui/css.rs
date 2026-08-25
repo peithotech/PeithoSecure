@@ -1,4 +1,4 @@
-//! Stark pure monochrome design system with high-contrast Dark and Light modes.
+//! Stark pure monochrome design system with selective Red/Green for security actions and outcomes.
 
 /// Return the complete CSS stylesheet string.
 pub fn get_stylesheet() -> &'static str {
@@ -14,6 +14,12 @@ pub fn get_stylesheet() -> &'static str {
     --text-muted: #71717a;
     --badge-bg: #18181b;
     --badge-text: #ffffff;
+    --color-allow: #10b981;
+    --color-allow-bg: rgba(16, 185, 129, 0.08);
+    --color-allow-border: rgba(16, 185, 129, 0.25);
+    --color-deny: #f43f5e;
+    --color-deny-bg: rgba(244, 63, 94, 0.08);
+    --color-deny-border: rgba(244, 63, 94, 0.25);
     --font-mono: 'JetBrains Mono', monospace;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -29,6 +35,12 @@ pub fn get_stylesheet() -> &'static str {
     --text-muted: #71717a;
     --badge-bg: #ffffff;
     --badge-text: #000000;
+    --color-allow: #34d399;
+    --color-allow-bg: rgba(52, 211, 153, 0.12);
+    --color-allow-border: rgba(52, 211, 153, 0.3);
+    --color-deny: #fb7185;
+    --color-deny-bg: rgba(251, 113, 133, 0.12);
+    --color-deny-border: rgba(251, 113, 133, 0.3);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -50,6 +62,9 @@ body {
 .text-sub { color: var(--text-sub); }
 .text-dim { color: var(--text-muted); }
 
+.text-allow { color: var(--color-allow); }
+.text-deny { color: var(--color-deny); }
+
 .badge-mono {
     background-color: var(--badge-bg);
     color: var(--badge-text);
@@ -68,6 +83,26 @@ body {
     font-size: 11px;
 }
 
+.badge-allow {
+    background-color: var(--color-allow-bg);
+    color: var(--color-allow);
+    border: 1px solid var(--color-allow-border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-deny {
+    background-color: var(--color-deny-bg);
+    color: var(--color-deny);
+    border: 1px solid var(--color-deny-border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
 .btn-mono {
     background-color: var(--bg-surface);
     color: var(--text-main);
@@ -83,6 +118,24 @@ body {
 .btn-mono:hover {
     background-color: var(--bg-surface-hover);
     border-color: var(--border-strong);
+}
+
+.btn-allow {
+    border-color: var(--color-allow-border);
+    color: var(--color-allow);
+}
+.btn-allow:hover {
+    background-color: var(--color-allow-bg);
+    border-color: var(--color-allow);
+}
+
+.btn-deny {
+    border-color: var(--color-deny-border);
+    color: var(--color-deny);
+}
+.btn-deny:hover {
+    background-color: var(--color-deny-bg);
+    border-color: var(--color-deny);
 }
 
 .tab-btn {
