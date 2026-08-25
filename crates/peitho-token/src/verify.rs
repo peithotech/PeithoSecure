@@ -179,11 +179,11 @@ fn evaluate_caveats(caveats: &[Caveat], ctx: &InvocationContext) -> Result<(), T
                     }
                 }
             }
-            Caveat::ReadOnly => {
+            Caveat::ReadOnly | Caveat::TaintLock => {
                 if !ctx.is_read_only {
                     return Err(TokenError::UnauthorizedScope {
                         required: "write_mutation".to_string(),
-                        allowed: vec!["read_only".to_string()],
+                        allowed: vec!["read_only_or_taint_locked".to_string()],
                     });
                 }
             }

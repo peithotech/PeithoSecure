@@ -16,6 +16,8 @@ pub enum Caveat {
     ReadOnly,
     /// Maximum spending budget (in micro-units / micro-dollars).
     MaxBudgetMicroUnits(u64),
+    /// Session Taint Lock: agent interacted with untrusted content; mutations forbidden.
+    TaintLock,
     /// Custom domain-specific key-value condition.
     Custom {
         /// Condition name.
@@ -86,7 +88,7 @@ pub fn validate_monotonic_hop(parent_caveats: &[Caveat], child_caveats: &[Caveat
                     }
                 }
             }
-            Caveat::ReadOnly | Caveat::Custom { .. } => {}
+            Caveat::ReadOnly | Caveat::TaintLock | Caveat::Custom { .. } => {}
         }
     }
     Ok(())

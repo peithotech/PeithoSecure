@@ -181,3 +181,31 @@ fn test_conflicting_caveats_strictest_reduction() {
     };
     assert!(verify_token_and_caveats(&token, &write_ctx).is_err());
 }
+
+#[test]
+fn test_taint_lock_session_containment() {
+    let (mut token, key) = create_test_token();
+
+    // Agent ingests untrusted external content -> TaintLock caveat attached
+    let _ = attenuate_hmac(&mut token, &key, vec![Caveat::TaintLock]).expect("taint attenuation");
+
+    // 1. Read operations still allowed while tainted
+    let read_ctx = InvocationContext {
+        tool_name: Some("query_database".into()),
+        resource_uri: Some("s3://data/public/file.txt".into()),
+        current_time_secs: 1_700_000_000,
+        is_read_only: true,
+        cost_micro_units: 10,
+    };
+    assert!(verify_token_and_caveats(&token, &read_ctx).is_ok());
+
+    // 2. Write / mutation operations strictly locked out
+    let mutation_ctx = InvocationContext {
+        tool_name: Some("query_database".into()),
+        resource_uri: Some("s3://data/public/file.txt".into()),
+        current_time_secs: 1_700_000_000,
+        is_read_only: false, // Attempted write!
+        cost_micro_units: 10,
+    };
+    assert!(verify_token_and_caveats(&token, &mutation_ctx).is_err(), "Taint-locked session must not execute write operations!");
+}
