@@ -69,7 +69,7 @@ Rather than competing with enterprise governance platforms, PeithoSecure serves 
 ### 🛡️ 4. The 3 Immutable Value Commitments
 
 1. **Monotonic Authority Containment**:
-   * *"Compromise of an agent grants zero authority beyond the capability that agent possesses."*
+   * *"Compromise of an agent cannot cryptographically expand the authority encoded in the capability it possesses."*
 2. **At-Most-Once Authorization Semantics**:
    * *"Peitho provides at-most-once authorization semantics for single-use capabilities; exactly-once business outcomes are coordinated with downstream idempotency."*
 3. **Discrete Side-Effect Provenance**:
