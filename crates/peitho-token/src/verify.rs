@@ -209,9 +209,14 @@ fn evaluate_caveats(caveats: &[Caveat], ctx: &InvocationContext) -> Result<(), T
             }
             Caveat::ResourcePrefix(prefix) => {
                 if let Some(ref uri) = ctx.resource_uri {
-                    if uri.contains("/..") || uri.contains("%2e%2e") || uri.contains("%2E%2E") {
+                    let path_part = if let Some(idx) = uri.find("://") {
+                        uri.get(idx + 3..).unwrap_or(uri.as_str())
+                    } else {
+                        uri.as_str()
+                    };
+                    if uri.contains("/..") || uri.contains("/./") || path_part.contains("//") || uri.contains('%') {
                         return Err(TokenError::UnauthorizedScope {
-                            required: "canonical_clean_uri".to_string(),
+                            required: "canonical_normalized_uri".to_string(),
                             allowed: vec![format!("prefix:{}", prefix)],
                         });
                     }
