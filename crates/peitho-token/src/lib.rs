@@ -20,7 +20,10 @@ pub mod types;
 pub mod verify;
 
 pub use caveat::Caveat;
-pub use codec::{decode_token, encode_token, MAX_TOKEN_BYTES};
+pub use codec::{
+    decode_token, encode_token, MAX_TOKEN_BYTES, PEITHO_HEADER_LEN, PEITHO_WIRE_MAGIC,
+    PEITHO_WIRE_VERSION,
+};
 pub use commitment::{
     compute_hmac_tag, compute_hop_commitment, compute_root_commitment,
     derive_next_ephemeral_key, derive_root_ephemeral_key,
