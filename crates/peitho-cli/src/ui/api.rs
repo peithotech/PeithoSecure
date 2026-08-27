@@ -48,7 +48,7 @@ pub async fn handle_v1_overview(State(state): State<AppState>) -> Json<serde_jso
         "community_mode": true,
         "instance_scope": "Single Local Node (No Central State)",
         "ui_address": "127.0.0.1:4040",
-        "mcp_gateway_address": "127.0.0.1:8080/mcp",
+        "mcp_gateway_address": "127.0.0.1:4040/mcp",
         "total_authorizations": total_observed,
         "total_allowed": total_allowed,
         "total_denied": total_denied,
