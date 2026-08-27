@@ -41,12 +41,12 @@ function switchTab(tab) {{
         if (btn) btn.classList.toggle('active', s === tab);
     }});
     if (tab === 'overview') {{ fetchOverview(); fetchDecisions(); }}
-    if (tab === 'capabilities') renderCapabilitiesTree();
-    if (tab === 'activity' || tab === 'decisions') fetchDecisions();
-    if (tab === 'tokens') renderTokens();
-    if (tab === 'tools') renderTools();
-    if (tab === 'invariants') fetchInvariants();
-    if (tab === 'system') fetchSystem();
+    else if (tab === 'capabilities') renderCapabilitiesTree();
+    else if (tab === 'activity' || tab === 'decisions') fetchDecisions();
+    else if (tab === 'tokens') renderTokens();
+    else if (tab === 'tools') renderTools();
+    else if (tab === 'invariants') fetchInvariants();
+    else if (tab === 'system') fetchSystem();
 }}
 
 async function fetchOverview() {{
@@ -72,6 +72,8 @@ async function fetchOverview() {{
     }} catch (e) {{ console.error(e); }}
 }}
 
+let selectedActivityIndex = 0;
+
 async function fetchDecisions() {{
     try {{
         const res = await fetch(`/api/v1/decisions?outcome=${{currentFilter}}`);
@@ -79,8 +81,9 @@ async function fetchDecisions() {{
         renderOverviewActivity();
         renderActivityTable();
         if (activeDecisions.length > 0) {{
-            showDecisionDetail(activeDecisions[0]);
-            renderActivityDetail(activeDecisions[0]);
+            const safeIdx = Math.min(selectedActivityIndex, activeDecisions.length - 1);
+            showDecisionDetail(activeDecisions[safeIdx]);
+            renderActivityDetail(activeDecisions[safeIdx]);
         }}
     }} catch (e) {{ console.error(e); }}
 }}
@@ -89,26 +92,19 @@ function renderOverviewActivity() {{
     const listEl = document.getElementById('overview-activity-list');
     if (!listEl) return;
     listEl.innerHTML = '';
-    activeDecisions.slice(0, 4).forEach(t => {{
+    activeDecisions.slice(0, 4).forEach((t, idx) => {{
         const isAllow = t.outcome === 'ALLOW';
         const item = document.createElement('div');
         item.className = 'p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer space-y-1 transition';
-        item.onclick = () => {{ showDecisionDetail(t); renderActivityDetail(t); }};
-        item.innerHTML = `
-            <div class="flex items-center justify-between">
-                <span class="text-dim">${{new Date(t.timestamp_micros / 1000).toLocaleTimeString()}}</span>
-                <span class="${{isAllow ? 'badge-allow' : 'badge-deny'}}">${{t.outcome}}</span>
-                <span class="text-main font-bold">${{t.principal_display}}</span>
-            </div>
-            <div class="text-main font-bold">${{t.tool_name}}</div>
-            <div class="${{isAllow ? 'text-dim' : 'text-deny'}} text-[11px]">${{t.failed_invariant ? t.failed_invariant : t.resource_display}}</div>
-        `;
+        item.onclick = () => {{ selectedActivityIndex = idx; showDecisionDetail(t); renderActivityDetail(t); }};
+        item.innerHTML = `<div class="flex items-center justify-between"><span class="text-dim">${{new Date(t.timestamp_micros / 1000).toLocaleTimeString()}}</span><span class="${{isAllow ? 'badge-allow' : 'badge-deny'}}">${{t.outcome}}</span><span class="text-main font-bold">${{t.principal_display}}</span></div><div class="text-main font-bold">${{t.tool_name}}</div><div class="${{isAllow ? 'text-dim' : 'text-deny'}} text-[11px]">${{t.failed_invariant ? t.failed_invariant : t.resource_display}}</div>`;
         listEl.appendChild(item);
     }});
 }}
 
 function setFilter(f) {{
     currentFilter = f;
+    selectedActivityIndex = 0;
     ['ALL', 'ALLOW', 'DENY', 'REPLAY', 'TRAVERSAL', 'EXPIRED'].forEach(k => {{
         const btn = document.getElementById(`filter-btn-${{k}}`);
         if (btn) btn.classList.toggle('active', k === f);
@@ -120,11 +116,13 @@ function renderActivityTable() {{
     const tbody = document.getElementById('activity-tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
+    const safeIdx = activeDecisions.length > 0 ? Math.min(selectedActivityIndex, activeDecisions.length - 1) : 0;
     activeDecisions.forEach((t, idx) => {{
         const tr = document.createElement('tr');
         tr.id = `act-row-${{idx}}`;
-        tr.className = `cursor-pointer ${{idx === 0 ? 'selected' : ''}}`;
+        tr.className = `cursor-pointer ${{idx === safeIdx ? 'selected' : ''}}`;
         tr.onclick = () => {{
+            selectedActivityIndex = idx;
             document.querySelectorAll('#activity-tbody tr').forEach(r => r.classList.remove('selected'));
             tr.classList.add('selected');
             renderActivityDetail(t);
@@ -140,9 +138,6 @@ function renderActivityTable() {{
         `;
         tbody.appendChild(tr);
     }});
-    if (activeDecisions.length > 0) {{
-        renderActivityDetail(activeDecisions[0]);
-    }}
 }}
 
 function renderActivityDetail(trace) {{
@@ -159,13 +154,13 @@ function renderActivityDetail(trace) {{
                 <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">${{trace.principal_display}}</span></div>
                 <div><span class="text-dim">Resource:</span> <span class="text-main font-mono">${{trace.resource_display}}</span></div>
             </div>
-            <div class="card-box space-y-1.5 text-[11px]">
+            <div class="card-box space-y-1 text-[11px]">
                 <div class="font-bold text-sub">INLINE EVALUATION:</div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Root signature valid (ML-DSA-44)</span></div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Audience bound to principal</span></div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Nonce fresh (&lt;15ns test-and-burn)</span></div>
-                <div class="flex items-center gap-2 ${{isAllow ? 'text-allow' : 'text-deny'}}"><span>${{isAllow ? '✓' : '✗'}}</span> <span>Tool allowed scope ${{trace.failed_invariant && trace.failed_invariant.includes('P-005') ? '(P-005)' : ''}}</span></div>
-                <div class="flex items-center gap-2 ${{isAllow ? 'text-allow' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? 'text-deny' : 'text-dim')}}"><span>${{isAllow ? '✓' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '✗' : '○')}}</span> <span>Resource prefix confinement ${{trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '(P-004)' : ''}}</span></div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Root signature valid (ML-DSA-44)</div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Audience bound to principal</div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Nonce fresh (&lt;15ns test-and-burn)</div>
+                <div class="flex items-center gap-1.5 ${{isAllow ? 'text-allow' : 'text-deny'}}"><span>${{isAllow ? '✓' : '✗'}}</span> Tool allowed scope ${{trace.failed_invariant && trace.failed_invariant.includes('P-005') ? '(P-005)' : ''}}</div>
+                <div class="flex items-center gap-1.5 ${{isAllow ? 'text-allow' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? 'text-deny' : 'text-dim')}}"><span>${{isAllow ? '✓' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '✗' : '○')}}</span> Resource prefix confinement ${{trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '(P-004)' : ''}}</div>
             </div>
             <div class="${{isAllow ? 'text-sub' : 'text-deny'}} text-[11px]">${{trace.failed_invariant ? `Blocked: ${{trace.failed_invariant}}` : 'All cryptographic proofs verified.'}}</div>
         </div>
@@ -186,16 +181,16 @@ function showDecisionDetail(trace) {{
                 <div class="card-box space-y-1.5"><span class="text-dim">Principal:</span> <span class="text-main font-bold">${{trace.principal_display}}</span><br><span class="text-dim">Tool:</span> <span class="text-main font-bold">${{trace.tool_name}}</span></div>
                 <div class="card-box space-y-1.5"><span class="text-dim">Action:</span> <span class="text-main font-bold">execute</span><br><span class="text-dim">Resource:</span> <span class="text-main font-bold">${{trace.resource_display}}</span></div>
             </div>
-            <div class="card-box space-y-2 text-xs">
+            <div class="card-box space-y-1.5 text-xs">
                 <div class="font-bold text-sub border-b-subtle pb-1">EVALUATION CHECKLIST:</div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Root signature valid (ML-DSA-44)</span></div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Audience matches bound principal</span></div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Token not revoked</span></div>
-                <div class="flex items-center gap-2 text-allow"><span>✓</span> <span>Nonce fresh (&lt;15ns test-and-burn)</span></div>
-                <div class="flex items-center gap-2 ${{isAllow ? 'text-allow' : 'text-deny'}}"><span>${{isAllow ? '✓' : '✗'}}</span> <span>Tool allowed scope ${{trace.failed_invariant && trace.failed_invariant.includes('P-005') ? '(P-005)' : ''}}</span></div>
-                <div class="flex items-center gap-2 ${{isAllow ? 'text-allow' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? 'text-deny' : 'text-dim')}}"><span>${{isAllow ? '✓' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '✗' : '○')}}</span> <span>Resource prefix confinement ${{trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '(P-004)' : ''}}</span></div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Root signature valid (ML-DSA-44)</div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Audience matches bound principal</div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Token not revoked</div>
+                <div class="flex items-center gap-1.5 text-allow"><span>✓</span> Nonce fresh (&lt;15ns test-and-burn)</div>
+                <div class="flex items-center gap-1.5 ${{isAllow ? 'text-allow' : 'text-deny'}}"><span>${{isAllow ? '✓' : '✗'}}</span> Tool allowed scope ${{trace.failed_invariant && trace.failed_invariant.includes('P-005') ? '(P-005)' : ''}}</div>
+                <div class="flex items-center gap-1.5 ${{isAllow ? 'text-allow' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? 'text-deny' : 'text-dim')}}"><span>${{isAllow ? '✓' : (trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '✗' : '○')}}</span> Resource prefix confinement ${{trace.failed_invariant && trace.failed_invariant.includes('P-004') ? '(P-004)' : ''}}</div>
             </div>
-            <div class="card-box space-y-2 text-xs">
+            <div class="card-box space-y-1.5 text-xs">
                 <div class="font-bold text-sub border-b-subtle pb-1">RESULT CODE: <span class="${{isAllow ? 'text-allow' : 'text-deny'}}">${{isAllow ? 'PEITHO_OK_AUTHORIZED' : 'PEITHO_ERR_UNAUTHORIZED'}}</span></div>
                 <div class="text-sub">Authority possessed: <span class="text-main font-bold">search_documents, read_document</span></div>
                 <div class="text-sub">Authority requested: <span class="${{isAllow ? 'text-allow' : 'text-deny'}} font-bold">${{trace.tool_name}}</span></div>

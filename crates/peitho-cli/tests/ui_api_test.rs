@@ -37,7 +37,7 @@ async fn test_v1_overview_endpoint() {
     assert_eq!(json["status"], "LOCAL_HEALTHY");
     assert_eq!(json["community_mode"], true);
     assert_eq!(json["ui_address"], "127.0.0.1:4040");
-    assert_eq!(json["mcp_gateway_address"], "127.0.0.1:8080/mcp");
+    assert_eq!(json["mcp_gateway_address"], "127.0.0.1:4040/mcp");
     assert_eq!(json["engine_checklist"][0]["status"], "PASS");
 }
 
