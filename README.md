@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ PeithoSecure
+#  PeithoSecure
 
 ### **The Post-Quantum Authorization Kernel & Security Microscope for Autonomous AI Agents**
 
