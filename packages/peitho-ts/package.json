@@ -1,0 +1,25 @@
+{
+  "name": "@peithosecure/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript/JavaScript SDK for PeithoSecure post-quantum capability delegation and AI agent MCP security",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "peitho",
+    "post-quantum",
+    "ai-agents",
+    "mcp",
+    "security",
+    "capabilities",
+    "zero-trust"
+  ],
+  "author": "PeithoSecure Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peithotech/PeithoSecure.git"
+  }
+}
