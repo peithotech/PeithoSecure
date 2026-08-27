@@ -1,11 +1,11 @@
-# 🛡️ Phase P0.9 Charter: Independent Assurance & Real-Protocol Validation
+# Phase P0.9 Charter: Independent Assurance & Real-Protocol Validation
 ## Transition from Internal Hardening to External Independent Verification
 
 Phase P0.9 defines the transition of PeithoSecure from internal adversarial fuzzing to clean-room independent reference evaluation and third-party security review.
 
 ---
 
-### 🏛️ Core Architectural Blueprint
+### Core Architectural Blueprint
 
 ```
                       FROZEN SECURITY SPEC (P-001 to P-018)
@@ -40,7 +40,7 @@ Phase P0.9 defines the transition of PeithoSecure from internal adversarial fuzz
 
 ---
 
-### 🎯 Five Core Objectives of Phase P0.9
+### Five Core Objectives of Phase P0.9
 
 1. **Independent Reference Evaluator**:
    * Build a completely independent reference implementation sharing *only* the formal specification (no shared parser code, no shared canonicalization routines, no shared cryptographic wrappers).

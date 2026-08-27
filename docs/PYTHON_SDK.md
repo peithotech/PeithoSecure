@@ -1,10 +1,10 @@
-# 🐍 Peitho Python SDK Reference
+# Peitho Python SDK Reference
 
 The `peitho` Python library provides native, high-speed PyO3 bindings to the Peitho Rust cryptographic kernel.
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 pip install peitho
@@ -12,7 +12,7 @@ pip install peitho
 
 ---
 
-## 🔑 1. Generating Post-Quantum Keypairs
+## 1. Generating Post-Quantum Keypairs
 
 Peitho uses **NIST ML-DSA-44** (FIPS 204) digital signature keypairs for root trust anchors.
 
@@ -27,7 +27,7 @@ print("Public Key byte size:", keys.public_key.byte_size())  # 1,312 bytes
 
 ---
 
-## 🎟️ 2. Minting Capability Tokens
+## 2. Minting Capability Tokens
 
 Tokens represent bounded, unforgeable authority granted to an AI agent.
 
@@ -53,7 +53,7 @@ print("Token Hex:", token.to_bytes().hex())
 
 ---
 
-## 🔄 3. Monotonic Attenuation (Delegating to Subagents)
+## 3. Monotonic Attenuation (Delegating to Subagents)
 
 An agent can attenuate (restrict) its token before delegating a subtask to another agent. Authority can only be **narrowed**, never expanded ($C_k \subseteq C_{k-1}$).
 
@@ -73,7 +73,7 @@ print("Subagent Token Depth:", subagent_token.depth())  # 1
 
 ---
 
-## 🛡️ 4. Shielding Agent Functions with `@shield`
+## 4. Shielding Agent Functions with `@shield`
 
 The `@shield` decorator wraps any Python function to automatically enforce capability tokens before execution.
 
@@ -95,7 +95,7 @@ fetch_market_report("s3://enterprise/research/public/q3.pdf")
 
 ---
 
-## 🤖 5. Integration with LangChain & CrewAI
+## 5. Integration with LangChain & CrewAI
 
 ```python
 from langchain.tools import tool

@@ -1,4 +1,4 @@
-# 🛡️ PeithoSecure: Post-Quantum Zero-Trust Gateway for AI Agent Swarms
+# PeithoSecure: Post-Quantum Zero-Trust Gateway for AI Agent Swarms
 ## Architecture, Benchmarking & Technical Evaluation White Paper for CISOs and Platform Leaders
 
 ---
@@ -16,9 +16,9 @@ Existing API gateways (Okta, Kong, AWS IAM) impose **50–150 ms of remote datab
 
 ---
 
-### 📊 Comparative Latency & Security Architecture Analysis
+### Comparative Latency & Security Architecture Analysis
 
-| Dimension | Traditional IAM (Okta / AWS IAM) | LLM Guardrails (LlamaGuard) | 🛡️ PeithoSecure Gateway |
+| Dimension | Traditional IAM (Okta / AWS IAM) | LLM Guardrails (LlamaGuard) |  PeithoSecure Gateway |
 | :--- | :--- | :--- | :--- |
 | **Verification Latency (p50)** | $50\text{ ms} - 150\text{ ms}$ | $800\text{ ms} - 2,500\text{ ms}$ | **$25.9\,\mu\text{s}$ ($0.025\text{ ms}$)** |
 | **Swarm Latency (50 Tool Calls)** | $2.5 - 7.5\text{ seconds}$ | $40 - 125\text{ seconds}$ | **$0.0012\text{ seconds (1.2 ms)}$** |
@@ -30,7 +30,7 @@ Existing API gateways (Okta, Kong, AWS IAM) impose **50–150 ms of remote datab
 
 ---
 
-### 🔬 Empirical Hardware Benchmark Decomposition (Apple Silicon M3 Pro)
+### Empirical Hardware Benchmark Decomposition (Apple Silicon M3 Pro)
 
 All measurements conducted using Criterion statistical distributions across 100,000+ iterations:
 
@@ -54,7 +54,7 @@ $$\begin{aligned}
 
 ---
 
-### 🚨 Human-in-the-Loop (HITL) Break-Glass Architecture
+### Human-in-the-Loop (HITL) Break-Glass Architecture
 
 When an autonomous agent triggers an unauthorized tool invocation:
 1. **Immediate Interception**: The tool call is suspended at the `/mcp` boundary; HTTP 403 error is returned or held in pause.
@@ -65,7 +65,7 @@ When an autonomous agent triggers an unauthorized tool invocation:
 
 ---
 
-### 🔒 Enterprise Invariants & Verification
+### Enterprise Invariants & Verification
 * **Zero-Panic Guarantee**: All core crates strictly compiled under `#![deny(clippy::panic, clippy::unwrap_used, clippy::indexing_slicing)]`.
 * **Zero Memory Leakage**: All cryptographic secret keys implement `zeroize::ZeroizeOnDrop` with volatile register clearing on drop.
 * **Apache-2.0 Open Source**: Full permissive enterprise licensing with no vendor lock-in.

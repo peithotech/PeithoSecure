@@ -1,4 +1,4 @@
-# 🕵️ PeithoSecure: Master Competitive Intelligence Dossier
+# PeithoSecure: Master Competitive Intelligence Dossier
 ## Deep Technical Teardown of 30+ Commercial Vendors and 30+ Open-Source Projects
 
 ---
@@ -25,7 +25,7 @@
 
 | Open-Source Project | Architecture | Latency Profile | Core Weakness | What We Steal | What We Reject |
 | :--- | :--- | :---: | :--- | :--- | :--- |
-| **Steiner** (`HT88-exe/steiner`) | Session taint tracking over stdio | Medium (~10–30ms) | Python runtime; lacks cryptographic token chains | **💎 Taint Tracking**: Untrusted input automatically drops mutation permissions (`TaintLock`) | Relying on Python process wrappers |
+| **Steiner** (`HT88-exe/steiner`) | Session taint tracking over stdio | Medium (~10–30ms) | Python runtime; lacks cryptographic token chains | ** Taint Tracking**: Untrusted input automatically drops mutation permissions (`TaintLock`) | Relying on Python process wrappers |
 | **McpVanguard** (`provnai/McpVanguard`) | L0-L3 Layered Gateway (Regex + LLM Judge) | High ($500-2000\text{ms}$ with L2) | LLM-as-a-judge adds massive latency and is prompt-hackable | Deterministic safe-zone classification | Secondary LLM prompt scoring for security decisions |
 | **mcp-firewall** (`ressl/mcp-firewall`) | Inbound/outbound policy, DLP, cost | Medium (~15–50ms) | Rule-based regex engine; lacks monotonic delegation proofs | Structured cost tracking and DLP schemas | Brittle regex pattern matching as primary defense |
 | **Microsoft Agent Governance Toolkit** | MCP Security Gateway, CVE scanning, drift | Medium (~20–80ms) | Heavy enterprise architecture tied to Azure primitives | Schema drift detection and CVE integration format | Heavyweight enterprise framework bloat |
@@ -37,13 +37,13 @@
 
 ### Section III: Summary of Key Innovations to Adopt (Steal vs. Reject)
 
-#### 💡 What We Steal:
+#### What We Steal:
 1. **From Steiner**: **Session Taint Tracking (`Caveat::TaintLock`)**. When an agent ingests unverified external content (web scrape, public PDF), its token immediately converts to read-only mode.
 2. **From CyberArk / Oasis**: **Ephemeral JIT Nonces**. Binding execution tokens to short-lived single-use nonces for replay elimination.
 3. **From Microsoft AGT**: **Standardized Telemetry Schemas & CVE Categorization**.
 4. **From Pomerium / Ory**: **Open-Core Developer Distribution & Clean `@shield` Decorator Ergonomics**.
 
-#### ❌ What We Reject:
+#### What We Reject:
 1. **Secondary LLM Prompt Judges (LlamaGuard / McpVanguard L2)**: Too slow (1–2s lag) and bypassable via adversarial jailbreaks.
 2. **Centralized Database Lookups (Okta / OPA / PostgreSQL)**: Destroy multi-agent swarm performance with 50–150ms latency penalties.
 3. **Password / Key Vaulting (CyberArk PAM)**: Giving an agent an unrestricted database password is fundamentally insecure; we gate *capabilities*, not passwords.

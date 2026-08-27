@@ -1,11 +1,11 @@
-# 📜 PeithoSecure: Formal Security Invariant Registry (P-001 to P-018)
+# PeithoSecure: Formal Security Invariant Registry (P-001 to P-018)
 ## Definitive Specification of Evaluated Authorization Properties
 
 This registry formalizes the core mathematical invariants of the Peitho capability authorization kernel.
 
 ---
 
-### 📋 Invariant Taxonomy & Verification Matrix
+### Invariant Taxonomy & Verification Matrix
 
 | Property ID | Invariant Description | Formal Definition | Primary Test Suite |
 | :--- | :--- | :--- | :--- |
@@ -30,32 +30,32 @@ This registry formalizes the core mathematical invariants of the Peitho capabili
 
 ---
 
-### 📊 2D Security Property Coverage Matrix
+### 2D Security Property Coverage Matrix
 
 | Invariant | Unit | Property Test | Differential | Fuzz | Concurrency | Crash | Distributed | Protocol MCP | Autonomous Agent |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **P-001 (Root Authenticity)** | ✓ | ✓ | ✓ | ✓ | | | ✓ | ✓ | ✓ |
-| **P-002 (Monotonicity)** | ✓ | ✓ | ✓ | ✓ | ✓ | | ✓ | ✓ | ✓ |
-| **P-003 (Tenant Isolation)** | ✓ | ✓ | ✓ | ✓ | | | ✓ | ✓ | ✓ |
-| **P-004 (Resource Confinement)** | ✓ | ✓ | ✓ | ✓ | | | | ✓ | ✓ |
-| **P-005 (Tool Confinement)** | ✓ | ✓ | ✓ | ✓ | | | | ✓ | ✓ |
-| **P-006 (Budget Ceiling)** | ✓ | ✓ | ✓ | ✓ | ✓ | | | ✓ | ✓ |
-| **P-007 (Single-Use Nonce)** | ✓ | ✓ | | ✓ | ✓ | ✓ | | ✓ | ✓ |
-| **P-008 (Revocation Precedence)**| ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| **P-009 (Crash Durability)** | ✓ | | | ✓ | | ✓ | | | ✓ |
-| **P-010 (Profile Immutability)** | ✓ | ✓ | ✓ | ✓ | | | | | |
-| **P-011 (Principal Isolation)** | ✓ | ✓ | ✓ | ✓ | ✓ | | | ✓ | ✓ |
-| **P-012 (Protocol Framing)** | ✓ | | | ✓ | | | | ✓ | ✓ |
-| **P-013 (Downstream Equiv)** | ✓ | ✓ | ✓ | ✓ | | | | ✓ | ✓ |
-| **P-014 (Side-Effect Provenance)**| ✓ | | | ✓ | | | | ✓ | ✓ |
-| **P-015 (Byzantine Containment)**| ✓ | ✓ | ✓ | ✓ | | | ✓ | ✓ | ✓ |
-| **P-016 (Key Rotation/Recovery)**| ✓ | ✓ | ✓ | ✓ | | | ✓ | ✓ | ✓ |
-| **P-017 (At-Most-Once Auth)** | ✓ | ✓ | | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| **P-018 (Zero Info-Flow Leak)** | ✓ | | ✓ | ✓ | | | | ✓ | ✓ |
+| **P-001 (Root Authenticity)** |  |  |  |  | | |  |  |  |
+| **P-002 (Monotonicity)** |  |  |  |  |  | |  |  |  |
+| **P-003 (Tenant Isolation)** |  |  |  |  | | |  |  |  |
+| **P-004 (Resource Confinement)** |  |  |  |  | | | |  |  |
+| **P-005 (Tool Confinement)** |  |  |  |  | | | |  |  |
+| **P-006 (Budget Ceiling)** |  |  |  |  |  | | |  |  |
+| **P-007 (Single-Use Nonce)** |  |  | |  |  |  | |  |  |
+| **P-008 (Revocation Precedence)**|  |  |  |  |  |  |  |  |  |
+| **P-009 (Crash Durability)** |  | | |  | |  | | |  |
+| **P-010 (Profile Immutability)** |  |  |  |  | | | | | |
+| **P-011 (Principal Isolation)** |  |  |  |  |  | | |  |  |
+| **P-012 (Protocol Framing)** |  | | |  | | | |  |  |
+| **P-013 (Downstream Equiv)** |  |  |  |  | | | |  |  |
+| **P-014 (Side-Effect Provenance)**|  | | |  | | | |  |  |
+| **P-015 (Byzantine Containment)**|  |  |  |  | | |  |  |  |
+| **P-016 (Key Rotation/Recovery)**|  |  |  |  | | |  |  |  |
+| **P-017 (At-Most-Once Auth)** |  |  | |  |  |  |  |  |  |
+| **P-018 (Zero Info-Flow Leak)** |  | |  |  | | | |  |  |
 
 ---
 
-### 🌐 Formal Downstream Equivalence Definitions ($\text{SameResource}_{\text{class}}$)
+### Formal Downstream Equivalence Definitions ($\text{SameResource}_{\text{class}}$)
 
 * **$\text{SameResource}_{\text{S3}}$**: Defined strictly as $\langle \text{BucketName}, \text{ExactNormalizedObjectKey} \rangle$. Redundant slashes, dot segments, and percent escapes are evaluated prior to bucket dispatch.
 * **$\text{SameResource}_{\text{POSIX}}$**: Defined as $\langle \text{DeviceID}, \text{InodeNumber} \rangle$ resulting from path canonicalization without traversal outside prefix.
@@ -65,7 +65,7 @@ This registry formalizes the core mathematical invariants of the Peitho capabili
 
 ---
 
-### 🛡️ P-015 Byzantine Containment Boundaries
+### P-015 Byzantine Containment Boundaries
 
 1. **Cryptographic Containment**: Compromise of a verifier node $B$ cannot manufacture cryptographic authority accepted by an honest peer node $C$.
 2. **Enforcement Containment**: If node $B$ is the sole physical proxy to a protected resource, containment requires downstream service isolation or multi-signature consensus.

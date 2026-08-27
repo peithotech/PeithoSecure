@@ -1,11 +1,11 @@
-# 🔬 PeithoSecure: Benchmark & Evaluation Methodology
+# PeithoSecure: Benchmark & Evaluation Methodology
 ## Reproducibility, Measurement Boundaries, and Architectural Assumptions
 
 This document defines the exact hardware environment, compiler configurations, measurement boundaries, and execution contexts used for all PeithoSecure performance metrics.
 
 ---
 
-### 🖥️ 1. Testbed Hardware & OS Specification
+### 1. Testbed Hardware & OS Specification
 
 * **Host Architecture**: Apple Silicon (ARM64 / aarch64)
 * **Processor**: Apple M3 Pro (12-core CPU: 6 Performance Cores + 6 Efficiency Cores)
@@ -15,7 +15,7 @@ This document defines the exact hardware environment, compiler configurations, m
 
 ---
 
-### ⚙️ 2. Compiler Profile & Optimization Flags
+### 2. Compiler Profile & Optimization Flags
 
 All benchmark numbers reported for production verification use the **`release`** compilation profile:
 
@@ -33,23 +33,23 @@ debug = false
 
 ---
 
-### 📏 3. Measurement Boundaries & Assumptions
+### 3. Measurement Boundaries & Assumptions
 
 To prevent misleading comparisons, we explicitly declare what is included versus excluded in our latency measurements:
 
 | Measured Component | Included in $46\,\mu\text{s}$ In-Memory Benchmark? | Notes |
 | :--- | :---: | :--- |
-| **NIST ML-DSA-44 Root Verification** | ✅ **YES** | Cryptographic verification of 2,420-byte lattice signature over SHA3-256 root digest |
-| **SwarmSpeed HMAC Tag Recomputation** | ✅ **YES** | One-way key evolution ($K_0 \to K_1 \to \dots \to K_n$) and constant-time tag equality checks |
-| **Caveat Predicate Evaluation** | ✅ **YES** | Boundary checking across allowed tools, budget ceilings, TTL clock, and URI prefix matching |
-| **Atomic Nonce Test-and-Burn** | ✅ **YES** | Lock-free in-memory nonce set lookup and insertion |
-| **Local In-Memory Revocation Lookup** | ✅ **YES** | Read-lock query on local in-memory registry ($10.2\text{ ns}$) |
-| **JSON-RPC Deserialization** | ❌ **EXCLUDED** | Measures the core cryptographic authority kernel; MCP JSON transport adds standard serde overhead ($\approx 10-30\,\mu\text{s}$) |
-| **Network Socket Round-Trips** | ❌ **EXCLUDED** | Local in-memory execution; multi-node gossip propagation runs asynchronously in background threads |
+| **NIST ML-DSA-44 Root Verification** |  **YES** | Cryptographic verification of 2,420-byte lattice signature over SHA3-256 root digest |
+| **SwarmSpeed HMAC Tag Recomputation** |  **YES** | One-way key evolution ($K_0 \to K_1 \to \dots \to K_n$) and constant-time tag equality checks |
+| **Caveat Predicate Evaluation** |  **YES** | Boundary checking across allowed tools, budget ceilings, TTL clock, and URI prefix matching |
+| **Atomic Nonce Test-and-Burn** |  **YES** | Lock-free in-memory nonce set lookup and insertion |
+| **Local In-Memory Revocation Lookup** |  **YES** | Read-lock query on local in-memory registry ($10.2\text{ ns}$) |
+| **JSON-RPC Deserialization** |  **EXCLUDED** | Measures the core cryptographic authority kernel; MCP JSON transport adds standard serde overhead ($\approx 10-30\,\mu\text{s}$) |
+| **Network Socket Round-Trips** |  **EXCLUDED** | Local in-memory execution; multi-node gossip propagation runs asynchronously in background threads |
 
 ---
 
-### 🧪 4. Memory Profiling & Leak Invariant
+### 4. Memory Profiling & Leak Invariant
 
 * **Tested Workloads**: High-throughput bursts of 10,000 concurrent agent verifications and 1,000 concurrent nonce races.
 * **Empirical Observation**: Zero memory leaks observed under local heap profiling; all ephemeral keys implement `zeroize::ZeroizeOnDrop` for deterministic memory erasure upon stack unwind.

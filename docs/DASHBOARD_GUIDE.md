@@ -1,4 +1,4 @@
-# 🔬 Peitho Developer Dashboard Guide
+# Peitho Developer Dashboard Guide
 
 The Peitho Dashboard (`http://127.0.0.1:4040`) is a **developer security microscope** that turns invisible AI agent tool executions into crisp, real-time cryptographic traces.
 
@@ -12,7 +12,7 @@ The Peitho Dashboard (`http://127.0.0.1:4040`) is a **developer security microsc
 
 ---
 
-## 🧭 Dashboard Architecture: The 3 Core Views
+## Dashboard Architecture: The 3 Core Views
 
 The dashboard is structured around 3 high-signal developer views:
 1. **Activity Stream** (What happened?)
@@ -21,7 +21,7 @@ The dashboard is structured around 3 high-signal developer views:
 
 ---
 
-## 1. 📊 Activity Stream (Live Observability & Forensics)
+## 1.  Activity Stream (Live Observability & Forensics)
 
 The Activity Stream is the primary real-time monitoring view. It functions like Wireshark for autonomous AI agent tool calls.
 
@@ -38,16 +38,16 @@ The Activity Stream is the primary real-time monitoring view. It functions like 
   * **`INVARIANT`**: The violated security rule (e.g., `P-004 Resource Confinement`).
 * **Event Forensics & Inspector (Right Panel)**:
   * Clicking any row displays the full cryptographic checklist:
-    * `✓ Root signature valid (NIST ML-DSA-44)`
-    * `✓ Audience bound to principal`
-    * `✓ Nonce fresh (<15ns test-and-burn)`
-    * `✗ Tool allowed scope (P-005)`
+    * ` Root signature valid (NIST ML-DSA-44)`
+    * ` Audience bound to principal`
+    * ` Nonce fresh (<15ns test-and-burn)`
+    * ` Tool allowed scope (P-005)`
     * `○ Resource prefix confinement (P-004)`
   * Displays raw resource targets and failure diagnostic messages.
 
 ---
 
-## 2. 👑 Capabilities & Tokens (Authority Topology)
+## 2.  Capabilities & Tokens (Authority Topology)
 
 This view visualizes who authorized what and how permissions flowed through the swarm.
 
@@ -63,7 +63,7 @@ This view visualizes who authorized what and how permissions flowed through the 
 * **Capability Delegation Tree**:
   * Visualizes the live hierarchy from Genesis Root down to child and grandchild subagents:
     ```text
-    👑 ROOT (Trust Anchor ML-DSA-44)
+     ROOT (Trust Anchor ML-DSA-44)
     ├── Agent: agent.executive_analyst
     ├── Agent: agent.database_ops
     ├── Agent: agent.injected_attacker
@@ -81,7 +81,7 @@ This view visualizes who authorized what and how permissions flowed through the 
 
 ---
 
-## 3. 🛡️ Security Invariants & System (Formal Proofs)
+## 3.  Security Invariants & System (Formal Proofs)
 
 This view provides transparent mathematical assurance that the local kernel is operating correctly.
 
@@ -107,6 +107,6 @@ This view provides transparent mathematical assurance that the local kernel is o
 
 ---
 
-## 🌙 Theme & Sticky Navigation
-* Click the **`🌙 Theme`** button in the top right to toggle between Dark Mode and Light Mode.
+## Theme & Sticky Navigation
+* Click the **` Theme`** button in the top right to toggle between Dark Mode and Light Mode.
 * The top navigation bar is pinned **stickily below the header**, so you can switch between views seamlessly from anywhere on the page!

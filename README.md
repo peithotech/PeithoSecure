@@ -1,6 +1,6 @@
 <div align="center">
 
-#  PeithoSecure
+# PeithoSecure
 
 ### **The Post-Quantum Authorization Kernel & Security Microscope for Autonomous AI Agents**
 
@@ -20,23 +20,23 @@
 
 <br/>
 
-[Quickstart](#-quickstart-in-30-seconds) •
-[How It Works](#-how-it-works-the-linux-kernel-for-ai) •
-[Desktop & IDE Integration](#-desktop-app--ide-integration) •
-[SDKs](#-python--typescript-sdks) •
-[Live Dashboard](#-live-developer-dashboard) •
-[Formal Invariants](#-the-18-formal-security-invariants)
+[Quickstart](#quickstart-in-30-seconds) •
+[How It Works](#how-it-works) •
+[Desktop & IDE Integration](#desktop-app--ide-integration) •
+[SDKs](#python--typescript-sdks) •
+[Live Dashboard](#live-developer-dashboard) •
+[Formal Invariants](#the-18-formal-security-invariants)
 
 </div>
 
 ---
 
-## ⚡ The AI Security Crisis: Why "Guardrails" Fail
+## The AI Security Crisis: Why "Guardrails" Fail
 
 Today, developers give autonomous AI agents **god-mode API keys and raw database credentials**. 
 
 ```
-Model Output (LLM) ──► "Do X" ──► Agent requests X ──► [ 🛡️ PEITHO KERNEL ]
+Model Output (LLM) ──► "Do X" ──► Agent requests X ──► [ PEITHO KERNEL ]
                                                                │
                                                "Does this capability authorize X?"
                                                                │
@@ -55,7 +55,7 @@ Model Output (LLM) ──► "Do X" ──► Agent requests X ──► [ 🛡�
 
 ---
 
-## 🚀 Quickstart in 30 Seconds
+## Quickstart in 30 Seconds
 
 ### 1. Install Peitho CLI
 ```bash
@@ -81,11 +81,11 @@ Watch your terminal execute multi-agent prompts and adversarial injection attack
 
 ---
 
-## 🖥️ Desktop App & IDE Integration
+## Desktop App & IDE Integration
 
 Peitho acts as a transparent, high-speed security shim for any LLM desktop client or IDE supporting the Model Context Protocol (MCP).
 
-### 🤖 1. Claude Desktop Integration (`claude_desktop_config.json`)
+### 1. Claude Desktop Integration (`claude_desktop_config.json`)
 Shield local filesystem, Postgres, or terminal MCP servers:
 ```json
 {
@@ -102,7 +102,7 @@ Shield local filesystem, Postgres, or terminal MCP servers:
 }
 ```
 
-### 💻 2. Cursor IDE & Windsurf
+### 2. Cursor IDE & Windsurf
 Point your Cursor MCP settings directly to the local streamable gateway:
 ```
 http://127.0.0.1:4040/mcp
@@ -112,7 +112,7 @@ http://127.0.0.1:4040/mcp
 
 ---
 
-## 🐍 Python & TypeScript SDKs
+## Python & TypeScript SDKs
 
 ### Python SDK (`peitho`)
 ```bash
@@ -163,7 +163,7 @@ const protectedSearch = shield(async (query: string) => {
 
 ---
 
-## 🔬 Live Developer Dashboard
+## Live Developer Dashboard
 
 When running `peitho dev`, navigating to `http://127.0.0.1:4040` gives you a pure, high-signal developer microscope:
 
@@ -191,7 +191,7 @@ When running `peitho dev`, navigating to `http://127.0.0.1:4040` gives you a pur
 
 ---
 
-## 🛡️ The 18 Formal Security Invariants
+## The 18 Formal Security Invariants
 
 Peitho enforces 18 mathematically provable invariants across all delegations:
 
@@ -220,12 +220,12 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 
 ---
 
-## 💼 Open Core Architecture & Commercial Roadmap
+## Open Core Architecture & Commercial Roadmap
 
 > *"Scale is a consequence. Authority is the product."*
 
 ```
-  🟢 COMMUNITY (OPEN SOURCE)                       🏢 ENTERPRISE (COMMERCIAL ROADMAP)
+  COMMUNITY (OPEN SOURCE)                          ENTERPRISE (COMMERCIAL ROADMAP)
    "I need to protect my agent."                    "I need to control organizational authority."
                │                                                      │
                ▼                                                      ▼
@@ -240,7 +240,7 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
    (Local Dev)   (Local Test)                  (Fleet Node)      (Fleet Node)      (Fleet Node)
 ```
 
-| Layer / Feature | 🟢 Community Edition (Apache 2.0) | 🏢 Team & Enterprise Edition (Roadmap) |
+| Layer / Feature | Community Edition (Apache 2.0) | Team & Enterprise Edition (Roadmap) |
 | :--- | :--- | :--- |
 | **Core Value** | Protecting Individual Agents & Local Swarms | Managing & Auditing Organizational Authority |
 | **Deployment Model** | Single Node / Local Machine (`127.0.0.1:4040`) | Cloud VPC Mesh / Distributed Multi-Cluster |
@@ -254,7 +254,7 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 
 ---
 
-## 🤝 Contributing & Community
+## Contributing & Community
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on code style, property testing, and PR requirements.
 
@@ -265,7 +265,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 
 <div align="center">
 
-**Built with ❤️ for the global AI developer community.**
+**Built for the global AI developer community.**
 
 *PeithoSecure is open source software released under the [Apache 2.0 License](LICENSE).*
 

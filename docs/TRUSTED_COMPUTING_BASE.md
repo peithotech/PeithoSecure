@@ -1,10 +1,10 @@
-# 🛡️ PeithoSecure: Trusted Computing Base (TCB) & Security Boundary Model
+# PeithoSecure: Trusted Computing Base (TCB) & Security Boundary Model
 
 This document defines the formal boundaries of the Trusted Computing Base (TCB), what Peitho enforces vs. what lies outside its security boundary, and the threat model under partial node compromise.
 
 ---
 
-### 🏛️ 1. The Core Architectural Boundary Principle
+### 1. The Core Architectural Boundary Principle
 
 > **"Peitho enforces capability authorization for operations that cross an enforcement gateway boundary under its control. It does not automatically control arbitrary side effects executed by downstream services behind that boundary unless those side effects also route through a capability-checked gateway."**
 
@@ -41,7 +41,7 @@ This document defines the formal boundaries of the Trusted Computing Base (TCB),
 
 ---
 
-### ⚠️ 2. Threat Model: Compromise Containment
+### 2. Threat Model: Compromise Containment
 
 | Component Compromised | Attacker Capabilities | Containment Invariant (What Peitho Guarantees) |
 | :--- | :--- | :--- |
@@ -51,7 +51,7 @@ This document defines the formal boundaries of the Trusted Computing Base (TCB),
 
 ---
 
-### ⏱️ 3. Risk-Adjusted Authorization Freshness
+### 3. Risk-Adjusted Authorization Freshness
 
 Distributed revocation operates under a dual-tier freshness SLA:
 

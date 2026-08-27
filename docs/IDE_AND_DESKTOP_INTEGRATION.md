@@ -1,10 +1,10 @@
-# 🖥️ LLM Desktop App & IDE Integration Guide
+# LLM Desktop App & IDE Integration Guide
 
 Peitho seamlessly protects **Claude Desktop, Cursor IDE, Windsurf, Antigravity, and VS Code (Continue.dev)** from prompt injection attacks, unauthorized file access, and destructive commands.
 
 ---
 
-## 🤖 1. Claude Desktop Integration
+## 1. Claude Desktop Integration
 
 Claude Desktop launches MCP tool servers over standard OS pipes (`stdio`). You can shield any MCP tool server (filesystem, Postgres, GitHub, bash) by prefixing it with `peitho wrap`.
 
@@ -36,13 +36,13 @@ Claude Desktop launches MCP tool servers over standard OS pipes (`stdio`). You c
 }
 ```
 
-### 🛡️ How Claude is Protected:
+### How Claude is Protected:
 1. When Claude legitimately reads files inside `/Users/me/Projects` $\rightarrow$ **Allowed**.
 2. If an untrusted webpage or user prompt tricks Claude into calling `rm -rf /` or reading `/etc/passwd` $\rightarrow$ **Peitho intercepts and rejects the command before it ever executes**.
 
 ---
 
-## 💻 2. Cursor IDE & Windsurf Integration
+## 2. Cursor IDE & Windsurf Integration
 
 Cursor and Windsurf support connecting to Model Context Protocol (MCP) servers via Streamable HTTP/SSE.
 
@@ -60,7 +60,7 @@ Cursor and Windsurf support connecting to Model Context Protocol (MCP) servers v
 
 ---
 
-## 🚀 3. Antigravity & Custom LLM Agent Frameworks
+## 3. Antigravity & Custom LLM Agent Frameworks
 
 If you are using Google Antigravity, LangChain, CrewAI, or Microsoft AutoGen:
 
@@ -103,7 +103,7 @@ resp = urllib.request.urlopen(req)
 
 ---
 
-## 🔍 4. Verifying Interceptions Live in the UI
+## 4. Verifying Interceptions Live in the UI
 
 Whenever your IDE or desktop app calls a tool:
 1. Open **[http://127.0.0.1:4040](http://127.0.0.1:4040)**.

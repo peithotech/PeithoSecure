@@ -1,9 +1,9 @@
-# 🏛️ PeithoSecure: Commercial Strategy & Authority Lifecycle Architecture
+# PeithoSecure: Commercial Strategy & Authority Lifecycle Architecture
 ## Cryptographic Agent Authorization Infrastructure
 
 ---
 
-### 🎯 1. The Core Value Proposition
+### 1. The Core Value Proposition
 
 > **The Peitho Kernel answers:** *"Is this discrete action cryptographically authorized?"* ($46\,\mu\text{s}$ local in-memory hot path, zero network dependency).
 >
@@ -11,7 +11,7 @@
 
 ---
 
-### 🧩 2. Open Core vs. Commercial Authority Cloud
+### 2. Open Core vs. Commercial Authority Cloud
 
 We adopt the **Open-Core Infrastructure Architecture** (the model proven by Tailscale, Teleport, and Cilium):
 
@@ -40,7 +40,7 @@ We adopt the **Open-Core Infrastructure Architecture** (the model proven by Tail
 
 ---
 
-### ⚡ 3. Architectural Decoupling: Zero Hot-Path Dependency
+### 3. Architectural Decoupling: Zero Hot-Path Dependency
 
 A critical design invariant separates Peitho from centralized IAM bottlenecks:
 
@@ -65,7 +65,7 @@ Agent ───────►│ local decision  │──────► Enter
 
 ---
 
-### 🌳 4. The Flagship Commercial Capabilities
+### 4. The Flagship Commercial Capabilities
 
 Instead of selling a disconnected checklist of enterprise features, the commercial platform focuses on three core pillars:
 
@@ -84,7 +84,7 @@ $$\text{Employee Alice} \longrightarrow \text{Lead Agent} \longrightarrow \text{
 
 ---
 
-### 💵 5. Monetization Model & Economic Tiers
+### 5. Monetization Model & Economic Tiers
 
 The pricing model tracks **agent scale and governance complexity**, rather than human seats:
 
@@ -100,7 +100,7 @@ The pricing model tracks **agent scale and governance complexity**, rather than 
 
 ---
 
-### 🛡️ 6. The 3 Immutable Value Commitments
+### 6. The 3 Immutable Value Commitments
 
 1. **Monotonic Authority Containment**:
    * *"Compromise of an agent cannot cryptographically expand the authority encoded in the capability it possesses."*

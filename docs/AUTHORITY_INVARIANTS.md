@@ -1,4 +1,4 @@
-# 📐 Cryptographic Authority Layer: Invariants & Threat Model Specification
+# Cryptographic Authority Layer: Invariants & Threat Model Specification
 ## Formally Specified and Property-Tested Invariants for Autonomous Agent Authority
 
 This document defines the formal authorization invariants, canonicalization semantics, replay threat model, and cryptographic trust transition governing Peitho capability tokens.

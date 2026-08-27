@@ -1,10 +1,10 @@
-# 🔷 Peitho TypeScript & Node.js SDK Reference
+# Peitho TypeScript & Node.js SDK Reference
 
 The `@peithosecure/sdk` library provides TypeScript and JavaScript developers with high-level client tools to interact with the Peitho Security Gateway and wrap MCP tools.
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install @peithosecure/sdk
@@ -12,7 +12,7 @@ npm install @peithosecure/sdk
 
 ---
 
-## 🚀 1. Quickstart & Client Setup
+## 1. Quickstart & Client Setup
 
 ```typescript
 import { PeithoClient } from '@peithosecure/sdk';
@@ -28,7 +28,7 @@ console.log('Gateway status:', status);
 
 ---
 
-## 🛡️ 2. Shielding Functions with `shield()`
+## 2. Shielding Functions with `shield()`
 
 Wrap your TypeScript tool functions with capability enforcement:
 
@@ -53,7 +53,7 @@ console.log(result);
 
 ---
 
-## 🤖 3. Executing MCP Tool Calls
+## 3. Executing MCP Tool Calls
 
 Send structured JSON-RPC 2.0 tool calls through the Peitho Security Gateway:
 

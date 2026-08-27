@@ -1,10 +1,10 @@
-# 🚀 Getting Started with PeithoSecure
+# Getting Started with PeithoSecure
 
 This guide walks you through installing Peitho, launching your local post-quantum security gateway, and shielding your first AI agent in under 5 minutes.
 
 ---
 
-## 📦 1. Installation
+## 1. Installation
 
 ### Rust CLI & Gateway
 ```bash
@@ -32,7 +32,7 @@ npm install @peithosecure/sdk
 
 ---
 
-## ⚡ 2. Start the Local Security Gateway
+## 2. Start the Local Security Gateway
 
 In your terminal, start the Peitho development gateway:
 ```bash
@@ -41,14 +41,14 @@ peitho dev --port 4040
 
 You should see:
 ```text
-🚀 Starting Peitho Community Dashboard on http://127.0.0.1:4040
+ Starting Peitho Community Dashboard on http://127.0.0.1:4040
 ```
 
 Open **[http://127.0.0.1:4040](http://127.0.0.1:4040)** in your browser. The dashboard starts in **`STANDBY ●`** mode, waiting for live agent tool calls.
 
 ---
 
-## 🛡️ 3. Shield Your First AI Agent (Python)
+## 3. Shield Your First AI Agent (Python)
 
 Create a file named `my_agent.py`:
 
@@ -96,7 +96,7 @@ python3 my_agent.py
 
 ---
 
-## 🖥️ 4. Watch Live Telemetry in Your Browser
+## 4. Watch Live Telemetry in Your Browser
 Switch to your browser at **[http://127.0.0.1:4040](http://127.0.0.1:4040)**:
 1. The header badge switches to **`LIVE ENFORCEMENT ●`**.
 2. The **Activity Stream** logs both transactions with nanosecond latency.
@@ -104,7 +104,7 @@ Switch to your browser at **[http://127.0.0.1:4040](http://127.0.0.1:4040)**:
 
 ---
 
-## 🏃 Next Steps:
+## Next Steps:
 * Protect Claude Desktop or Cursor: [IDE & Desktop Integration Guide](IDE_AND_DESKTOP_INTEGRATION.md)
 * Understand the post-quantum math: [Architecture & Cryptography Deep Dive](ARCHITECTURE.md)
 * Read the mathematical invariants: [Formal Security Invariants Specification](INVARIANTS.md)
