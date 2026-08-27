@@ -63,7 +63,7 @@ async function fetchOverview() {{
         }}
         const badgeEl = document.getElementById('mode-badge');
         if (badgeEl) {{
-            badgeEl.innerText = totalAuth > 0 ? 'LIVE ENFORCEMENT' : 'SIMULATION MODE';
+            badgeEl.innerText = totalAuth > 0 ? 'LIVE ENFORCEMENT ●' : 'STANDBY ●';
             badgeEl.className = totalAuth > 0 ? 'badge-outline text-[10px] text-allow mono font-bold' : 'badge-outline text-[10px] text-dim mono';
         }}
         const graphEl = document.getElementById('overview-authority-graph');
@@ -118,7 +118,7 @@ function renderActivityTable() {{
     if (!tbody) return;
     tbody.innerHTML = '';
     if (activeDecisions.length === 0) {{
-        tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-dim mono">Waiting for agent MCP requests on 127.0.0.1:4040/mcp ...<br><span class="text-[11px] text-sub mt-2 inline-block">Click "⚡ Simulate Allow" or run your agent swarm to generate live cryptographic traces</span></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-dim mono">Waiting for agent MCP requests on 127.0.0.1:4040/mcp ...<br><span class="text-[11px] text-sub mt-2 inline-block">Execute tool calls via Python or TypeScript SDK to stream real-time cryptographic traces</span></td></tr>';
         renderActivityDetail(null);
         return;
     }}

@@ -33,7 +33,7 @@ pub fn get_page_html() -> String {
                 <div class="flex items-center gap-2">
                     <span class="font-bold text-sm tracking-tight text-main mono">PEITHO COMMUNITY</span>
                     <span class="badge-outline mono">LOCAL INSTANCE ●</span>
-                    <span class="badge-outline text-[10px] text-dim mono" id="mode-badge">SIMULATION MODE</span>
+                    <span class="badge-outline text-[10px] text-dim mono" id="mode-badge">STANDBY ●</span>
                 </div>
                 <div class="flex items-center gap-3 text-[11px] text-dim mono mt-0.5">
                     <span>UI <span class="text-main">127.0.0.1:4040</span></span>
@@ -43,8 +43,6 @@ pub fn get_page_html() -> String {
             </div>
         </div>
         <div class="flex items-center space-x-2 text-xs mono">
-            <button onclick="runSelfTest('valid_authorization')" class="btn-mono btn-allow">⚡ Simulate Allow</button>
-            <button onclick="runSelfTest('unauthorized_tool')" class="btn-mono btn-deny">🛡️ Simulate Block</button>
             <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn-mono">🌙 Theme</button>
         </div>
     </header>
