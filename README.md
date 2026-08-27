@@ -15,7 +15,8 @@
 
 **Peitho is a high-performance, post-quantum cryptographic execution boundary and live observability instrument for AI agents and Model Context Protocol (MCP) tool calls.**
 
-*Stop prompt injections, unauthorized tool execution, and catastrophic database deletions before they ever touch your infrastructure.*
+*Peitho prevents unauthorized AI-generated actions from crossing the tool authorization boundary.*
+*Prompt injection can influence what an agent asks for. It cannot grant the agent authority it doesn't possess.*
 
 <br/>
 
@@ -52,7 +53,7 @@ User / Attacker ──► [ ANY Model ] ──► Tool Call ──► [ 🛡️ 
 ### Why Peitho is Fundamentally Different:
 * **Zero Trust in Model Behavior**: We assume the LLM *will* hallucinate, be tricked by prompt injections, or misread user intent.
 * **Deterministic Enforcement at the Authorization Boundary**: An agent cannot execute a tool unless it carries a cryptographically valid, monotonic **NIST ML-DSA-44 signed capability token**.
-* **Model-Agnostic**: Works identically with **Claude, GPT-4o, DeepSeek-R1, Gemini, Antigravity, or local Ollama models**.
+* **Model-Agnostic**: Peitho enforces authorization deterministically at the tool boundary rather than relying on model behavior or inspecting prompt text.
 * **Sub-Millisecond Hot Path**: Evaluates signatures, resource prefixes, single-use nonces, and TTLs in **$<50\,\mu\text{s}$** without external database lookups.
 
 ---
@@ -222,15 +223,35 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 
 ---
 
-## 💼 Open Core Roadmap
+## 💼 Open Core Architecture & Commercial Moat
 
-| Feature | 🟢 Community Edition (Open Source) | 🏢 Team & Enterprise Edition |
+```
+  🟢 COMMUNITY (OPEN SOURCE)                       🏢 ENTERPRISE (COMMERCIAL TIER)
+       One Local Machine                               Thousands of Distributed Agents
+               │                                                      │
+               ▼                                                      ▼
+     ┌───────────────────┐                         ┌─────────────────────────────────────┐
+     │  PEITHO KERNEL    │                         │      PEITHO CENTRAL AUTHORITY       │
+     │  + LOCAL DASHBOARD│                         │   Policy • Fleet • SIEM • KMS • SSO │
+     └─────────┬─────────┘                         └──────────────────┬──────────────────┘
+               │                                                      │
+        ┌──────┴──────┐                             ┌─────────────────┼─────────────────┐
+        ▼             ▼                             ▼                 ▼                 ▼
+     Agent A       Agent B                      Cluster A         Cluster B         Cluster C
+   (Local Dev)   (Local Test)                 (1,000 agents)    (5,000 agents)   (10,000 agents)
+```
+
+| Layer / Feature | 🟢 Community Edition (Apache 2.0) | 🏢 Team & Enterprise Edition |
 | :--- | :--- | :--- |
-| **License** | Apache 2.0 (100% Free Forever) | Commercial / Private License |
-| **Deployment** | Single Node (`127.0.0.1:4040`) | Cloud Cluster / VPC Private Mesh |
-| **Cryptography** | NIST ML-DSA-44 (FIPS 204) & ML-KEM-768 | NIST ML-DSA-44 + Hardware HSM / AWS KMS |
-| **Observability** | Real-Time Local Web Dashboard | SIEM Streaming (Datadog / Splunk / S3) |
-| **Governance** | Code-Defined Python & TypeScript Tokens | Centralized Organization Policy Engine & SSO |
+| **Target Audience** | Individual Developers & Local Swarms | Engineering Teams & Enterprise AI Fleets |
+| **Deployment Model** | Single Node / Local Machine (`127.0.0.1:4040`) | Cloud VPC Mesh / Kubernetes Multi-Cluster |
+| **Cryptographic Kernel** | NIST ML-DSA-44 (FIPS 204) & ML-KEM-768 | NIST ML-DSA-44 + Cloud KMS / Hardware HSM |
+| **Token Verification** | Local $<50\,\mu\text{s}$ CPU Evaluation | Distributed $<50\,\mu\text{s}$ Kernel + Sync Mesh |
+| **Observability** | Local Real-Time Dashboard & Forensic UI | Enterprise SIEM Streaming (Datadog, Splunk, S3) |
+| **Fleet Policy Governance** | Code-Defined Python / TypeScript Tokens | Centralized Organization Policy Engine |
+| **Incident Response** | Local Ephemeral Tombstone Cache | Subtree Instant Revocation Across All Clusters |
+| **Identity & Access** | Local Keypair Genesis | Enterprise SSO / SAML / SCIM / Organization RBAC |
+| **Compliance Evidence** | Local Test Harness Audit Reports | Cryptographic Side-Effect Audit Trails |
 
 ---
 
