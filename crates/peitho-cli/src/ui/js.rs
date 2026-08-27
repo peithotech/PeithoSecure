@@ -202,29 +202,14 @@ function showDecisionDetail(trace) {{
 
 async function runSelfTest(scenario) {{
     try {{
-        const res = await fetch('/api/v1/self-test', {{
+        await fetch('/api/v1/self-test', {{
             method: 'POST',
             headers: {{ 'Content-Type': 'application/json' }},
             body: JSON.stringify({{ scenario }}),
         }});
-        const data = await res.json();
-        const trace = {{
-            trace_id: `selftest_${{Date.now()}}`,
-            timestamp_micros: Date.now() * 1000,
-            principal_display: data.tested_principal || 'agent.researcher',
-            tool_name: data.tested_tool,
-            resource_display: data.tested_resource,
-            outcome: data.outcome,
-            failed_invariant: data.failed_invariant,
-            latency_micros: data.latency_micros,
-            checklist: {{}}
-        }};
-        activeDecisions.unshift(trace);
-        renderOverviewActivity();
-        renderActivityTable();
-        showDecisionDetail(trace);
-        renderActivityDetail(trace);
-        fetchOverview();
+        selectedActivityIndex = 0;
+        await fetchDecisions();
+        await fetchOverview();
     }} catch (e) {{ console.error(e); }}
 }}
 

@@ -38,7 +38,7 @@ pub fn get_page_html() -> String {
                 <div class="flex items-center gap-3 text-[11px] text-dim mono mt-0.5">
                     <span>UI <span class="text-main">127.0.0.1:4040</span></span>
                     <span>•</span>
-                    <span>MCP <span class="text-main">127.0.0.1:8080/mcp</span></span>
+                    <span>MCP <span class="text-main">127.0.0.1:4040/mcp</span></span>
                 </div>
             </div>
         </div>

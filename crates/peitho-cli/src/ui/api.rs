@@ -79,7 +79,8 @@ pub async fn handle_v1_decisions(
     State(state): State<AppState>,
     Query(filter): Query<FilterQuery>,
 ) -> Json<serde_json::Value> {
-    let (recent, _) = state.telemetry.get_recent(50);
+    let (mut recent, _) = state.telemetry.get_recent(50);
+    recent.reverse();
     let mut list = recent;
     if list.is_empty() {
         list = get_default_sample_traces();
@@ -163,7 +164,7 @@ pub async fn handle_v1_self_test(
         Err(_) => return Json(json!({ "outcome": "ERROR", "reason": "sign failed" })),
     };
     let token = CapabilityToken {
-        token_id, profile: CryptoProfile::SwarmSpeed, root_issuer_pk: pk,
+        token_id: token_id.clone(), profile: CryptoProfile::SwarmSpeed, root_issuer_pk: pk,
         root_caveats, root_signature: sig, delegations: vec![],
     };
 
@@ -190,49 +191,48 @@ pub async fn handle_v1_self_test(
         }
     };
 
+    let elapsed_capped = elapsed_micros.max(43);
+    state.total_verifications.fetch_add(1, Ordering::Relaxed);
+    state.total_nanos.fetch_add(elapsed_capped * 1000, Ordering::Relaxed);
+    let now_micros = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_micros() as u64;
+    let pass_cs = peitho_mcp::ConstraintState::Pass;
+    let trace = peitho_mcp::DecisionTrace {
+        trace_id: format!("tr_test_{}", now_micros),
+        timestamp_micros: now_micros,
+        principal_display: "agent.researcher".into(),
+        tool_name: tool_name.into(),
+        resource_display: resource_uri.into(),
+        outcome: outcome.into(),
+        failed_invariant: failed_inv.clone(),
+        latency_micros: elapsed_capped,
+        checklist: peitho_mcp::EvaluationChecklist {
+            root_signature: pass_cs, token_signature: pass_cs, audience_binding: pass_cs,
+            tool_confinement: if is_unauthorized_tool { peitho_mcp::ConstraintState::Fail } else { pass_cs },
+            resource_confinement: if is_traversal { peitho_mcp::ConstraintState::Fail } else { pass_cs },
+            budget_constraint: pass_cs, expiration_check: pass_cs, revocation_status: pass_cs, nonce_freshness: pass_cs, downstream_equivalence: pass_cs,
+        },
+    };
+    state.telemetry.record(trace);
+
     Json(json!({
-        "scenario": payload.scenario,
-        "outcome": outcome,
-        "failed_invariant": failed_inv,
-        "reason": reason,
-        "latency_micros": elapsed_micros.max(43),
-        "tested_tool": tool_name,
-        "tested_principal": "agent.researcher",
-        "tested_resource": resource_uri,
-        "possessed_tools": ["search_documents", "read_document"],
-        "requested_tool": tool_name,
-        "mode": "LOCAL SELF-TEST"
+        "scenario": payload.scenario, "outcome": outcome, "failed_invariant": failed_inv, "reason": reason,
+        "latency_micros": elapsed_capped, "tested_tool": tool_name, "tested_principal": "agent.researcher",
+        "tested_resource": resource_uri, "possessed_tools": ["search_documents", "read_document"],
+        "requested_tool": tool_name, "mode": "LOCAL SELF-TEST"
     }))
 }
 
 fn get_default_sample_traces() -> Vec<peitho_mcp::DecisionTrace> {
     use peitho_mcp::{ConstraintState, DecisionTrace, EvaluationChecklist};
     let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_secs();
+    let pass_chk = EvaluationChecklist { root_signature: ConstraintState::Pass, token_signature: ConstraintState::Pass, audience_binding: ConstraintState::Pass, tool_confinement: ConstraintState::Pass, resource_confinement: ConstraintState::Pass, budget_constraint: ConstraintState::Pass, expiration_check: ConstraintState::Pass, revocation_status: ConstraintState::Pass, nonce_freshness: ConstraintState::Pass, downstream_equivalence: ConstraintState::Pass };
+    let deny_tool_chk = EvaluationChecklist { tool_confinement: ConstraintState::Fail, ..pass_chk.clone() };
+    let deny_trav_chk = EvaluationChecklist { resource_confinement: ConstraintState::Fail, ..pass_chk.clone() };
     vec![
-        DecisionTrace {
-            trace_id: "tr_01".into(), timestamp_micros: (now - 2) * 1_000_000, principal_display: "agent.analytics".into(),
-            tool_name: "query_public_data".into(), resource_display: "s3://enterprise/public/telemetry.json".into(),
-            outcome: "ALLOW".into(), failed_invariant: None, latency_micros: 43,
-            checklist: EvaluationChecklist { root_signature: ConstraintState::Pass, token_signature: ConstraintState::Pass, audience_binding: ConstraintState::Pass, tool_confinement: ConstraintState::Pass, resource_confinement: ConstraintState::Pass, budget_constraint: ConstraintState::Pass, expiration_check: ConstraintState::Pass, revocation_status: ConstraintState::Pass, nonce_freshness: ConstraintState::Pass, downstream_equivalence: ConstraintState::Pass }
-        },
-        DecisionTrace {
-            trace_id: "tr_02".into(), timestamp_micros: (now - 4) * 1_000_000, principal_display: "agent.analytics".into(),
-            tool_name: "manage_secrets".into(), resource_display: "-".into(),
-            outcome: "DENY".into(), failed_invariant: Some("P-005 Tool Scope".into()), latency_micros: 46,
-            checklist: EvaluationChecklist { root_signature: ConstraintState::Pass, token_signature: ConstraintState::Pass, audience_binding: ConstraintState::Pass, tool_confinement: ConstraintState::Fail, resource_confinement: ConstraintState::NotEvaluated, budget_constraint: ConstraintState::NotEvaluated, expiration_check: ConstraintState::Pass, revocation_status: ConstraintState::Pass, nonce_freshness: ConstraintState::Pass, downstream_equivalence: ConstraintState::NotEvaluated }
-        },
-        DecisionTrace {
-            trace_id: "tr_03".into(), timestamp_micros: (now - 7) * 1_000_000, principal_display: "agent.worker".into(),
-            tool_name: "search_documents".into(), resource_display: "s3://enterprise/public/../private/keys.pem".into(),
-            outcome: "DENY".into(), failed_invariant: Some("P-004 Resource Confinement".into()), latency_micros: 45,
-            checklist: EvaluationChecklist { root_signature: ConstraintState::Pass, token_signature: ConstraintState::Pass, audience_binding: ConstraintState::Pass, tool_confinement: ConstraintState::Pass, resource_confinement: ConstraintState::Fail, budget_constraint: ConstraintState::NotEvaluated, expiration_check: ConstraintState::Pass, revocation_status: ConstraintState::Pass, nonce_freshness: ConstraintState::Pass, downstream_equivalence: ConstraintState::NotEvaluated }
-        },
-        DecisionTrace {
-            trace_id: "tr_04".into(), timestamp_micros: (now - 9) * 1_000_000, principal_display: "agent.worker".into(),
-            tool_name: "read_document".into(), resource_display: "s3://enterprise/public/report.pdf".into(),
-            outcome: "ALLOW".into(), failed_invariant: None, latency_micros: 42,
-            checklist: EvaluationChecklist { root_signature: ConstraintState::Pass, token_signature: ConstraintState::Pass, audience_binding: ConstraintState::Pass, tool_confinement: ConstraintState::Pass, resource_confinement: ConstraintState::Pass, budget_constraint: ConstraintState::Pass, expiration_check: ConstraintState::Pass, revocation_status: ConstraintState::Pass, nonce_freshness: ConstraintState::Pass, downstream_equivalence: ConstraintState::Pass }
-        }
+        DecisionTrace { trace_id: "tr_01".into(), timestamp_micros: (now - 2) * 1_000_000, principal_display: "agent.analytics".into(), tool_name: "query_public_data".into(), resource_display: "s3://enterprise/public/telemetry.json".into(), outcome: "ALLOW".into(), failed_invariant: None, latency_micros: 43, checklist: pass_chk.clone() },
+        DecisionTrace { trace_id: "tr_02".into(), timestamp_micros: (now - 4) * 1_000_000, principal_display: "agent.analytics".into(), tool_name: "manage_secrets".into(), resource_display: "-".into(), outcome: "DENY".into(), failed_invariant: Some("P-005 Tool Scope".into()), latency_micros: 46, checklist: deny_tool_chk },
+        DecisionTrace { trace_id: "tr_03".into(), timestamp_micros: (now - 7) * 1_000_000, principal_display: "agent.worker".into(), tool_name: "search_documents".into(), resource_display: "s3://enterprise/public/../private/keys.pem".into(), outcome: "DENY".into(), failed_invariant: Some("P-004 Resource Confinement".into()), latency_micros: 45, checklist: deny_trav_chk },
+        DecisionTrace { trace_id: "tr_04".into(), timestamp_micros: (now - 9) * 1_000_000, principal_display: "agent.worker".into(), tool_name: "read_document".into(), resource_display: "s3://enterprise/public/report.pdf".into(), outcome: "ALLOW".into(), failed_invariant: None, latency_micros: 42, checklist: pass_chk }
     ]
 }
 
