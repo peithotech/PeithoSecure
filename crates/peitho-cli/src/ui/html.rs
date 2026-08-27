@@ -33,7 +33,7 @@ pub fn get_page_html() -> String {
                 <div class="flex items-center gap-2">
                     <span class="font-bold text-sm tracking-tight text-main mono">PEITHO COMMUNITY</span>
                     <span class="badge-outline mono">LOCAL INSTANCE ●</span>
-                    <span class="badge-outline text-[10px] text-dim mono">DEMO DATA</span>
+                    <span class="badge-outline text-[10px] text-dim mono" id="mode-badge">SIMULATION MODE</span>
                 </div>
                 <div class="flex items-center gap-3 text-[11px] text-dim mono mt-0.5">
                     <span>UI <span class="text-main">127.0.0.1:4040</span></span>

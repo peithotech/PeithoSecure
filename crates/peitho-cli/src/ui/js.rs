@@ -61,6 +61,11 @@ async function fetchOverview() {{
             document.getElementById('stat-latency-val').innerText = p50 > 0 ? `${{p50}} µs` : '—';
             document.getElementById('stat-latency-sub').innerText = totalAuth > 0 ? `p50 · ${{totalAuth.toLocaleString()}} evaluations` : 'Local runtime (Zero I/O)';
         }}
+        const badgeEl = document.getElementById('mode-badge');
+        if (badgeEl) {{
+            badgeEl.innerText = totalAuth > 0 ? 'LIVE ENFORCEMENT' : 'SIMULATION MODE';
+            badgeEl.className = totalAuth > 0 ? 'badge-outline text-[10px] text-allow mono font-bold' : 'badge-outline text-[10px] text-dim mono';
+        }}
         const graphEl = document.getElementById('overview-authority-graph');
         if (graphEl) {{
             graphEl.innerText = `ROOT (Trust Anchor ML-DSA-44)\n  │\n  ├── agent.analytics\n  │      └── query_public_data\n  │          └── s3://enterprise/public/*\n  │\n  └── agent.worker\n         ├── read_document\n         │      └── s3://enterprise/public/report.pdf\n         └── [BLOCKED] manage_secrets (P-005)`;
