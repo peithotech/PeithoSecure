@@ -19,12 +19,14 @@ pub struct PyCapabilityToken(pub(crate) CapabilityToken, pub(crate) Option<[u8; 
 impl PyCapabilityToken {
     /// Issue a new root capability token.
     #[staticmethod]
-    #[pyo3(signature = (token_id, public_key, secret_key, allowed_tools=None, expires_at=None, read_only=false, profile_swarm=true))]
+    #[pyo3(signature = (token_id, public_key, secret_key, allowed_tools=None, resource_prefix=None, max_budget=None, expires_at=None, read_only=false, profile_swarm=true))]
     pub fn create_root(
         token_id: String,
         public_key: &PyDsaPublicKey,
         secret_key: &PyDsaSecretKey,
         allowed_tools: Option<Vec<String>>,
+        resource_prefix: Option<String>,
+        max_budget: Option<u64>,
         expires_at: Option<u64>,
         read_only: bool,
         profile_swarm: bool,
@@ -32,6 +34,12 @@ impl PyCapabilityToken {
         let mut caveats = Vec::new();
         if let Some(tools) = allowed_tools {
             caveats.push(Caveat::AllowedTools(tools));
+        }
+        if let Some(prefix) = resource_prefix {
+            caveats.push(Caveat::ResourcePrefix(prefix));
+        }
+        if let Some(budget) = max_budget {
+            caveats.push(Caveat::MaxBudgetMicroUnits(budget));
         }
         if let Some(exp) = expires_at {
             caveats.push(Caveat::ExpiresAt(exp));
@@ -70,11 +78,24 @@ impl PyCapabilityToken {
     }
 
     /// Attenuate token for a subagent using Ephemeral HMAC (SwarmSpeed).
-    #[pyo3(signature = (allowed_tools=None, expires_at=None, read_only=false))]
-    pub fn attenuate(&mut self, allowed_tools: Option<Vec<String>>, expires_at: Option<u64>, read_only: bool) -> PyResult<()> {
+    #[pyo3(signature = (allowed_tools=None, resource_prefix=None, max_budget=None, expires_at=None, read_only=false))]
+    pub fn attenuate(
+        &mut self,
+        allowed_tools: Option<Vec<String>>,
+        resource_prefix: Option<String>,
+        max_budget: Option<u64>,
+        expires_at: Option<u64>,
+        read_only: bool,
+    ) -> PyResult<()> {
         let mut new_caveats = Vec::new();
         if let Some(tools) = allowed_tools {
             new_caveats.push(Caveat::AllowedTools(tools));
+        }
+        if let Some(prefix) = resource_prefix {
+            new_caveats.push(Caveat::ResourcePrefix(prefix));
+        }
+        if let Some(budget) = max_budget {
+            new_caveats.push(Caveat::MaxBudgetMicroUnits(budget));
         }
         if let Some(exp) = expires_at {
             new_caveats.push(Caveat::ExpiresAt(exp));
