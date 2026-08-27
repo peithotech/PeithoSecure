@@ -137,8 +137,8 @@ fn test_peitho_wire_format_magic_header() {
     };
 
     let encoded = encode_token(&token).expect("encode");
-    assert_eq!(&encoded[..4], b"PEIT", "Wire format must start with PEIT magic bytes");
-    assert_eq!(encoded[4], 1, "Wire format version must be 1");
+    assert_eq!(&encoded[..6], b"PEITHO", "Wire format must start with full PEITHO magic bytes");
+    assert_eq!(encoded[6], 1, "Wire format version must be 1");
     let decoded = decode_token(&encoded).expect("decode");
     assert_eq!(token, decoded);
 }
