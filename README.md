@@ -1,175 +1,240 @@
-# PeithoSecure
+<div align="center">
 
-**Zero-Trust Cryptographic Containment & Blast-Radius Mitigation for Autonomous AI Agents & Model Context Protocol (MCP) Gateways.**
+# 🛡️ PeithoSecure
 
-[![Zero-Panic Audit](https://github.com/peithosecure/peithosecure/actions/workflows/zero-panic.yml/badge.svg)](https://github.com/peithosecure/peithosecure/actions/workflows/zero-panic.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![NIST FIPS 203 & 204](https://img.shields.io/badge/NIST-FIPS%20203%20%2F%20204-black.svg)](https://csrc.nist.gov/pubs/fips/204/final)
+### **The Post-Quantum Authorization Kernel & Security Microscope for Autonomous AI Agents**
+
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Rust: 1.80+](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](https://www.rust-lang.org)
+[![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://pypi.org/project/peitho/)
+[![TypeScript: 5.0+](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.npmjs.com/package/@peithosecure/sdk)
+[![NIST FIPS 204](https://img.shields.io/badge/NIST-ML--DSA--44-emerald.svg)](https://csrc.nist.gov/pubs/fips/204/final)
+[![Latency](https://img.shields.io/badge/Latency-%3C50%C2%B5s-brightgreen.svg)]()
+
+<br/>
+
+**Peitho is a high-performance, post-quantum cryptographic execution boundary and live observability instrument for AI agents and Model Context Protocol (MCP) tool calls.**
+
+*Stop prompt injections, unauthorized tool execution, and catastrophic database deletions before they ever touch your infrastructure.*
+
+<br/>
+
+[Quickstart](#-quickstart-in-30-seconds) •
+[How It Works](#-how-it-works-the-linux-kernel-for-ai) •
+[Desktop & IDE Integration](#-desktop-app--ide-integration) •
+[SDKs](#-python--typescript-sdks) •
+[Live Dashboard](#-live-developer-dashboard) •
+[Formal Invariants](#-the-18-formal-security-invariants)
+
+</div>
 
 ---
 
-## The Enterprise Challenge: Autonomous Agent Blast Radius
+## ⚡ The AI Security Crisis: Why "Guardrails" Fail
 
-Modern enterprise agent architectures (LangGraph, CrewAI, AutoGen, Claude Desktop) rely on dynamic subagent delegation and external tool execution via Model Context Protocol (MCP). Traditional API keys, bearer tokens, and coarse RBAC fail because:
-1. **Prompt Injection & Privilege Escalation**: A hijacked subagent can invoke arbitrary dangerous tools (database wiping, financial transfers) without restriction.
-2. **Database Lookup Latency Bottlenecks**: Centralized token validation databases introduce latency that cripples high-speed agent swarms.
-3. **Non-Monotonic Delegation**: Subagents can accidentally or maliciously delegate broader permissions than they were initially granted.
-4. **Quantum Vulnerability**: Legacy RSA/ECC digital signatures are vulnerable to future quantum cryptanalysis.
-
----
-
-## The PeithoSecure Solution
-
-PeithoSecure provides **stateless, cryptographically attenuated capability tokens** and a **Streamable HTTP / stdio MCP Security Gateway** that intercepts and verifies tool calls in **sub-millisecond time** without centralized database queries.
+Today, developers give autonomous AI agents **god-mode API keys and raw database credentials**. 
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   🤖 AI AGENT SWARM / PYTHON SDK                       │
-│      (@shield decorator • LangGraph • CrewAI • Native PyO3)            │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ X-Peitho-Capability: <token>
-┌───────────────────────────────────▼────────────────────────────────────┐
-│              🛡️ STREAMABLE HTTP & STDIO MCP GATEWAY                     │
-│    (Unified /mcp • Dual Bearer/Peitho Auth • <30µs Gatekeeper)          │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ Monotonic Verification
-┌───────────────────────────────────▼────────────────────────────────────┐
-│                 ⚡ PEITHO-TOKEN ATTENUATION ENGINE                     │
-│  (SwarmSpeed 32B HMAC • FIPS ML-DSA • Sub-µs Revocation Registry)      │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ Math Primitives
-┌───────────────────────────────────▼────────────────────────────────────┐
-│                    🔒 PEITHO-CORE CRYPTO ENGINE                        │
-│  (NIST FIPS 203 ML-KEM-768 • NIST FIPS 204 ML-DSA-44 • Argon2id Key)   │
-└────────────────────────────────────────────────────────────────────────┘
+❌ TRADITIONAL APPROACH (PROBABILISTIC & DANGEROUS)
+User / Attacker ──► [ LLM Model ] ──► Prompt Injection ──► Direct Tool Access ──► 💥 Data Destroyed
+                           ▲
+                  "Guardrail LLM" (Slow, +500ms, easily bypassed with jailbreaks & ciphers)
 ```
 
----
+```
+✅ PEITHO APPROACH (DETERMINISTIC & MATHEMATICAL)
+User / Attacker ──► [ ANY Model ] ──► Tool Call ──► [ 🛡️ PEITHO KERNEL ] ──► Hard Block (403)
+                                                              │
+                                                 Evaluates NIST ML-DSA-44 Token
+                                                 in <50µs (Zero-Allocation CPU Math)
+```
 
-## Empirical Benchmarks (Criterion Statistical 100-Sample Distribution)
-
-**Hardware Benchmark Environment**:
-* **Processor**: Apple M3 Pro (12 physical cores: 6 performance + 6 efficiency, ARM64 / ARMv8.6-A Crypto Extensions)
-* **Compiler**: `rustc 1.85.0` (`target-cpu=native`, opt-level 3, LTO enabled)
-* **Harness**: Criterion v0.5 with 100 statistical samples per benchmark group
-
-### 1. Isolated Primitive Latencies
-| Primitive / Operation | Algorithm / Primitive | Logical Inputs | p50 Latency | p95 Latency | Iterations Measured |
-| :--- | :--- | :--- | :---: | :---: | :---: |
-| **In-Memory Revocation Lookup** | `std::sync::RwLock` read | `token_id` in 1,000-entry registry | **10.20 ns** | 10.28 ns | 494,000,000 |
-| **Caveat Policy Evaluator** | In-memory predicate check | 5 `Caveat` variants against `InvocationContext` | **10.39 ns** | 10.47 ns | 482,000,000 |
-| **Monotonic Subset Validator** | Slice subset comparison loop | 4 parent caveats vs 4 child caveats | **21.58 ns** | 21.79 ns | 233,000,000 |
-| **SwarmSpeed HMAC Hop (1 hop)** | `sha3::Sha3_256` + `ConstantTimeEq` | 32B ephemeral key + 28B postcard caveats | **213.77 ns** | 214.86 ns | 23,000,000 |
-| **Root Commitment Hash** | Postcard Binary + `sha3::Sha3_256` | 13B `token_id` + 35B postcard caveats | **205.84 ns** | 207.34 ns | 24,000,000 |
-| **Root Ephemeral Key Derivation** | `sha3::Sha3_256` (SwarmSpeed seed) | 27B domain prefix + 2,420B ML-DSA-44 signature | **2.75 µs** | 2.77 µs | 1,800,000 |
-| **NIST FIPS 204 (ML-DSA-44) Verify** | Dilithium2 reference C binding | 1,312B public key, 32B digest, 2,420B signature | **21.48 µs** | 21.61 µs | 232,000 |
-
-### 2. Multi-Threaded Revocation Contention Workload
-* **Workload Composition**: 4 concurrent reader threads performing 25 lookups each (100 reads total) + 1 concurrent writer thread performing 5 `reg.revoke()` calls (5 writes total), for **105 total operations per batch (4.76% writes)** across 5 OS threads on a 500-entry registry.
-* **Batch Duration**: **46.72 µs wall-clock time** (p50).
-* **Aggregate Workload Throughput**: **~2.25 million operations/second** under active concurrent writer contention.
-
-### 3. End-to-End Swarm Tool Gating Pipeline
-* **Measured Pipeline Latency**: **25.91 µs** (p50, Criterion distribution across 197k iterations).
-* **Throughput in Single-Threaded Configuration**: **~38,600 2-hop pipeline executions/sec** (derived from $\frac{1}{25.908\,\mu\text{s}}$).
-
-#### Latency Decomposition Analysis (2-Hop Pipeline):
-| Component | Formula / Quantity | Measured p50 |
-| :--- | :--- | :---: |
-| **ML-DSA-44 Signature Verify** | $1\times\text{ Root Verification}$ | 21.48 µs |
-| **Root Key Derivation (SHA3-256)** | $1\times\text{ SHA3 over 2,420B Sig}$ | 2.75 µs |
-| **SwarmSpeed HMAC Hops** | $2\times\text{ 213.77 ns}$ | 0.43 µs |
-| **Root Commitment Hash** | $1\times\text{ Postcard + SHA3}$ | 0.21 µs |
-| **Monotonic Subset Validation** | $2\times\text{ 21.58 ns}$ | 0.04 µs |
-| **In-Memory Revocation Lookup** | $1\times\text{ 10.20 ns}$ | 0.01 µs |
-| **Caveat Policy Evaluator** | $1\times\text{ 10.39 ns}$ | 0.01 µs |
-| **Sum of Individually Isolated Components** | | **24.93 µs** |
-| **Measured End-to-End Pipeline Latency** | | **25.91 µs** |
-| **Unisolated Residual ($\Delta$)** | | **0.98 µs** |
-
-> **Note on Residual**: The ~0.98 µs residual is currently unisolated orchestration overhead; likely contributors include invocation-context passing, delegation-loop dispatch, and function-call overhead.
->
-> **Note on Cloud Portability**: Numbers measured on Apple Silicon ARM64 with native crypto instructions. On x86_64 cloud instances (e.g., AWS c6i / c7i with AVX-512 / AVX2), ML-DSA-44 verification ranges between 16–36 µs, and SHA3-256 HMAC operations maintain sub-microsecond latency.
+### Why Peitho is Fundamentally Different:
+* **Zero Trust in Model Behavior**: We assume the LLM *will* hallucinate, be tricked by prompt injections, or misread user intent.
+* **Deterministic Cryptography**: An agent cannot execute a tool unless it carries an unforgeable, monotonic **NIST ML-DSA-44 signed capability token**.
+* **Model-Agnostic**: Works identically with **Claude, GPT-4o, DeepSeek-R1, Gemini, Antigravity, or local Ollama models**.
+* **Sub-Millisecond Hot Path**: Evaluates signatures, resource prefixes, single-use nonces, and TTLs in **$<50\,\mu\text{s}$** without external database lookups.
 
 ---
 
-## Architectural Pillars
+## 🚀 Quickstart in 30 Seconds
 
-### 1. Modern Streamable HTTP & Stdio MCP Gateways (`peitho-mcp`)
-* **Unified `/mcp` Endpoint (2026 Spec)**: Handles `POST` (JSON-RPC requests), `GET` (SSE stream response upgrades / health), and `DELETE` (session termination).
-* **Enterprise Dual Authentication**: Supports standard enterprise `Authorization: Bearer <idp_jwt>` (pass-through for existing IdPs) alongside `X-Peitho-Capability: <token_hex>`.
-* **Local OS Stdio MITM Shield (`peitho wrap`)**: Zero-modification process isolation for local CLI agents and Claude Desktop tools.
-
-### 2. Cryptographic Capability Attenuation (`peitho-token`)
-* **Mathematical Monotonicity Enforcement**: Subagents can **only narrow** permissions, never broaden them:
-  * $\text{AllowedTools}(\text{Child}) \subseteq \text{AllowedTools}(\text{Parent})$
-  * $\text{ExpiresAt}(\text{Child}) \le \text{ExpiresAt}(\text{Parent})$
-  * $\text{MaxBudget}(\text{Child}) \le \text{MaxBudget}(\text{Parent})$
-  * $\text{ResourcePrefix}(\text{Child})$ must start with $\text{ResourcePrefix}(\text{Parent})$
-* **Crypto-Agile Profiles**:
-  * **FIPS Standard**: Asymmetric ML-DSA-44 signatures across all hops.
-  * **SwarmSpeed**: ML-DSA root signature + 32-byte ephemeral SHA3-256 HMAC tags for ultra-low latency swarm chains.
-* **Instant In-Memory Kill-Switch**: Sub-microsecond thread-safe `RevocationRegistry` with automatic expiration pruning.
-
-### 3. Post-Quantum Cryptographic Core (`peitho-core`)
-* **NIST FIPS 203 (ML-KEM-768)**: Lattice-based Key Encapsulation Mechanism.
-* **NIST FIPS 204 (ML-DSA-44)**: Lattice-based Digital Signature Algorithm.
-* **Encrypted Keystore**: AES-256-GCM + Argon2id password-derived storage with Unix `0o600` permission enforcement and automatic memory zeroization on drop.
-
-### 4. Zero-Panic Engineering Standard
-* **Compile-Time Lints**: Enforced `#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::indexing_slicing, clippy::unreachable)]` across all library crates.
-* **Continuous Integration**: GitHub Actions automated zero-panic and multi-platform testing gate.
-* **Modularity**: Strict **< 250 LOC per source file** architecture across all 37 workspace files.
-
----
-
-## Quickstart
-
-### 1. Installation
+### 1. Install Peitho CLI
 ```bash
-# Build CLI and Gateways
-cargo build --release
+# Via Cargo
+cargo install peitho-cli
 
-# Python SDK installation
+# Or One-Line Install (macOS / Linux)
+curl -fsSL https://peithosecure.com/install.sh | sh
+```
+
+### 2. Start the Local Security Gateway & Dashboard
+```bash
+peitho dev --port 4040
+```
+Open **[http://127.0.0.1:4040](http://127.0.0.1:4040)** in your browser to view your live security stream.
+
+### 3. Run the Autonomous Swarm Laboratory
+```bash
+# In another terminal, run the live multi-agent simulation
+python3 examples/live_agent_lab/interactive_agent_swarm.py
+```
+Watch your terminal execute multi-agent prompts and adversarial injection attacks while your browser displays the real-time cryptographic traces!
+
+---
+
+## 🖥️ Desktop App & IDE Integration
+
+Peitho acts as a transparent, high-speed security shim for any LLM desktop client or IDE supporting the Model Context Protocol (MCP).
+
+### 🤖 1. Claude Desktop Integration (`claude_desktop_config.json`)
+Shield local filesystem, Postgres, or terminal MCP servers:
+```json
+{
+  "mcpServers": {
+    "secure-filesystem": {
+      "command": "peitho",
+      "args": [
+        "wrap",
+        "--target", "npx -y @modelcontextprotocol/server-filesystem /Users/me/Projects",
+        "--token-file", "/Users/me/.peitho/claude_readonly.bin"
+      ]
+    }
+  }
+}
+```
+
+### 💻 2. Cursor IDE & Windsurf
+Point your Cursor MCP settings directly to the local streamable gateway:
+```
+http://127.0.0.1:4040/mcp
+```
+
+*(See [docs/IDE_AND_DESKTOP_INTEGRATION.md](docs/IDE_AND_DESKTOP_INTEGRATION.md) for detailed IDE setup guides).*
+
+---
+
+## 🐍 Python & TypeScript SDKs
+
+### Python SDK (`peitho`)
+```bash
 pip install peitho
 ```
 
-### 2. Python Agent Shield Example
 ```python
-from peitho import shield, generate_keypair, CapabilityToken
+from peitho import generate_keypair, CapabilityToken, shield
 
-# 1. Protect tool with zero-trust capability shield
-@shield(tool_name="database_query", read_only=True)
-def query_database(query: str, token=None):
-    return f"Result of {query}"
-
-# 2. Issue post-quantum capability token
+# 1. Generate NIST ML-DSA-44 Keypair
 keys = generate_keypair()
-token = CapabilityToken.create_root(
-    token_id="session-agent-01",
+
+# 2. Issue Bounded Capability Token
+research_token = CapabilityToken.create_root(
+    token_id="session-analyst-01",
     public_key=keys.public_key,
     secret_key=keys.secret_key,
-    allowed_tools=["database_query"],
+    allowed_tools=["search_knowledge", "fetch_report"],
+    resource_prefix="s3://enterprise/public/",
     read_only=True,
-    expires_at=1900000000,
+    expires_at=int(time.time()) + 3600
 )
 
-# 3. Attenuate for subagent (further restrict)
-subagent_token = CapabilityToken.from_bytes(token.to_bytes())
-subagent_token.attenuate(allowed_tools=["database_query"], read_only=True)
-
-# 4. Invoke authorized tool
-query_database("SELECT * FROM metrics", token=subagent_token)
+# 3. Shield Agent Functions
+@shield(token=research_token)
+def fetch_report(uri: str):
+    # Calls outside s3://enterprise/public/ or write mutations are instantly blocked!
+    return download_from_s3(uri)
 ```
-
-### 3. Launch Enterprise Web Dashboard
-```bash
-peitho ui --port 8080
-```
-Open **[http://127.0.0.1:8080](http://127.0.0.1:8080)** to access the live telemetry monitor, token studio, and kill-switch console.
 
 ---
 
-## License
+### TypeScript / Node.js SDK (`@peithosecure/sdk`)
+```bash
+npm install @peithosecure/sdk
+```
 
-Licensed under the Apache License, Version 2.0.
+```typescript
+import { PeithoClient, shield } from '@peithosecure/sdk';
+
+const client = new PeithoClient({ gatewayUrl: 'http://127.0.0.1:4040/mcp' });
+
+// Wrap agent tool invocations with post-quantum capability tokens
+const protectedSearch = shield(async (query: string) => {
+  return await vectorStore.search(query);
+}, { tokenHex: agentTokenHex });
+```
+
+---
+
+## 🔬 Live Developer Dashboard
+
+When running `peitho dev`, navigating to `http://127.0.0.1:4040` gives you a pure, high-signal developer microscope:
+
+<div align="center">
+
+| Tab | Purpose | What You See |
+| :--- | :--- | :--- |
+| **`Activity Stream`** | Live Observability & Forensics | Real-time event log, latency counters, and granular forensic evaluations displaying exact violated invariant rules. |
+| **`Capabilities & Tokens`** | Topology & Trust Hierarchy | Live parent-child **Capability Delegation Tree**, active token registry, and connected MCP tool boundaries. |
+| **`Security Invariants & System`** | Mathematical Formal Proofs | All 18 formal security invariants ($P-001 \rightarrow P-018$) with test harness mapping and runtime diagnostics. |
+
+</div>
+
+---
+
+## 🛡️ The 18 Formal Security Invariants
+
+Peitho enforces 18 mathematically provable invariants across all delegations:
+
+| ID | Invariant | Mathematical Formula | Enforcement Engine |
+| :--- | :--- | :--- | :--- |
+| **P-001** | Root Authority Authenticity | $\text{VerifyRoot}(T) \equiv \text{ML-DSA-44-Verify}$ | Post-quantum asymmetric verification |
+| **P-002** | Monotonic Attenuation | $\text{Authority}(C_k) \subseteq \text{Authority}(C_{k-1})$ | Monotonic caveat narrowing |
+| **P-003** | Cross-Tenant Isolation | $\text{Tenant}(A) \neq \text{Tenant}(B) \implies A \cap B = \emptyset$ | Cryptographic keypair isolation |
+| **P-004** | Resource Confinement | $R_{\text{target}} \sqsubseteq R_{\text{prefix}}$ | Path traversal & prefix normalization |
+| **P-005** | Tool Scope Confinement | $\text{Tool}_{\text{req}} \in \text{Tools}_{\text{allowed}}$ | Strict tool whitelist verification |
+| **P-006** | Budget Confinement | $\text{Cost}(\text{Req}) \le \text{Budget}_{\text{rem}}$ | Monotonic cost decrement |
+| **P-007** | Single-Use Replay Resistance | $\text{Nonce} \in \text{BurnedSet} \implies \text{DENY}$ | Test-and-burn atomic nonce cache |
+| **P-008** | Revocation Precedence | $\text{IsRevoked}(T_{\text{id}}) \implies \text{DENY}$ | Sub-microsecond local tombstone checks |
+| **P-009** | Monotonic Crash Durability | $\text{Recovered} \subseteq \text{PreCrash}$ | Atomic POSIX state durability |
+| **P-010** | Profile Immutability | $\text{Profile} \in \{\text{Fips}, \text{Swarm}\} \wedge \text{Tamper} \implies \text{DENY}$ | Discriminant tampering rejection |
+| **P-011** | Wire Format Integrity | $\text{Len}(T) \le 16\text{KB} \wedge \text{Magic}(T) == \text{PEITHO}$ | Magic header & size boundary suites |
+| **P-012** | Session Confinement | $\text{Session}(\text{Req}) == \text{Session}(T)$ | Session ID & Audience isolation |
+| **P-013** | Downstream Equivalence | $\text{Authorized}(\text{Req}) \implies \text{SameResource}_{\text{class}}$ | Canonical semantic mapping equivalence |
+| **P-014** | Side-Effect Provenance | $\text{DiscreteSideEffect} \implies \text{Capability}$ | State changes require explicit tokens |
+| **P-015** | Byzantine Node Containment | $\text{Compromised}(B) \not\implies \text{Forge}(C)$ | Zero forgeability across untrusted nodes |
+| **P-016** | Key Compromise Recovery | $\text{Decommission}(V_1) \implies \text{DENY}(V_1)$ | Epoch bump and instant key revocation |
+| **P-017** | At-Most-Once Authorization | $\text{Single-use authorization boundary}$ | Test-and-burn atomic verification |
+| **P-018** | Zero Info-Flow Leakage | $\text{InfoFlow}(\text{Req}) \subseteq \text{AllowedDisclosure}$ | Uniform error oracle $(-32001)$ |
+
+*(See [docs/INVARIANTS.md](docs/INVARIANTS.md) for mathematical proofs and property test suites).*
+
+---
+
+## 💼 Open Core Roadmap
+
+| Feature | 🟢 Community Edition (Open Source) | 🏢 Team & Enterprise Edition |
+| :--- | :--- | :--- |
+| **License** | Apache 2.0 (100% Free Forever) | Commercial / Private License |
+| **Deployment** | Single Node (`127.0.0.1:4040`) | Cloud Cluster / VPC Private Mesh |
+| **Cryptography** | NIST ML-DSA-44 (FIPS 204) & ML-KEM-768 | NIST ML-DSA-44 + Hardware HSM / AWS KMS |
+| **Observability** | Real-Time Local Web Dashboard | SIEM Streaming (Datadog / Splunk / S3) |
+| **Governance** | Code-Defined Python & TypeScript Tokens | Centralized Organization Policy Engine & SSO |
+
+---
+
+## 🤝 Contributing & Community
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on code style, property testing, and PR requirements.
+
+* **GitHub Discussions**: Ask questions and share feedback.
+* **Issues**: Report bugs or suggest new MCP tool interceptors.
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the global AI developer community.**
+
+*PeithoSecure is open source software released under the [Apache 2.0 License](LICENSE).*
+
+</div>
