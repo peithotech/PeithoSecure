@@ -35,9 +35,7 @@ pub fn attenuate_dsa(
     new_caveats: Vec<Caveat>,
 ) -> Result<(), TokenError> {
     validate_monotonic_hop(&token.root_caveats, &new_caveats)?;
-    for block in &token.delegations {
-        validate_monotonic_hop(&block.caveats, &new_caveats)?;
-    }
+    for b in &token.delegations { validate_monotonic_hop(&b.caveats, &new_caveats)?; }
 
     let prev_sig = match token.delegations.last() {
         Some(DelegationBlock { proof: HopProof::AsymmetricDsa { signature, .. }, .. }) => signature.as_slice(),
@@ -99,18 +97,6 @@ pub fn verify_token_with_registry(
                 reason,
             });
         }
-        for caveat in &token.root_caveats {
-            if let Caveat::Nonce(nonce) = caveat {
-                registry.check_and_burn_nonce(*nonce)?;
-            }
-        }
-        for block in &token.delegations {
-            for caveat in &block.caveats {
-                if let Caveat::Nonce(nonce) = caveat {
-                    registry.check_and_burn_nonce(*nonce)?;
-                }
-            }
-        }
     }
 
     let root_digest = compute_root_commitment(&token.token_id, token.profile, &token.root_caveats)?;
@@ -167,6 +153,17 @@ pub fn verify_token_with_registry(
         evaluate_caveats(&block.caveats, ctx)?;
     }
 
+    if let Some(registry) = revocation_registry {
+        burn_token_nonces(token, registry)?;
+    }
+
+    Ok(())
+}
+
+fn burn_token_nonces(token: &CapabilityToken, reg: &crate::revocation::RevocationRegistry) -> Result<(), TokenError> {
+    for c in token.root_caveats.iter().chain(token.delegations.iter().flat_map(|b| &b.caveats)) {
+        if let Caveat::Nonce(nonce) = c { reg.check_and_burn_nonce(*nonce)?; }
+    }
     Ok(())
 }
 

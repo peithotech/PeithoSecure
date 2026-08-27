@@ -51,7 +51,7 @@ User / Attacker ──► [ ANY Model ] ──► Tool Call ──► [ 🛡️ 
 
 ### Why Peitho is Fundamentally Different:
 * **Zero Trust in Model Behavior**: We assume the LLM *will* hallucinate, be tricked by prompt injections, or misread user intent.
-* **Deterministic Cryptography**: An agent cannot execute a tool unless it carries an unforgeable, monotonic **NIST ML-DSA-44 signed capability token**.
+* **Deterministic Enforcement at the Authorization Boundary**: An agent cannot execute a tool unless it carries a cryptographically valid, monotonic **NIST ML-DSA-44 signed capability token**.
 * **Model-Agnostic**: Works identically with **Claude, GPT-4o, DeepSeek-R1, Gemini, Antigravity, or local Ollama models**.
 * **Sub-Millisecond Hot Path**: Evaluates signatures, resource prefixes, single-use nonces, and TTLs in **$<50\,\mu\text{s}$** without external database lookups.
 

@@ -28,7 +28,8 @@ from peitho import generate_keypair, CapabilityToken
 
 GATEWAY_URL = "http://127.0.0.1:4040/mcp"
 DASHBOARD_URL = "http://127.0.0.1:4040"
-DB_PATH = "examples/live_agent_lab/production_crm.db"
+# Synthetic demonstration database only. Contains no production credentials or real customer data.
+DB_PATH = "examples/live_agent_lab/fixtures/demo_crm.db"
 
 # ANSI Colors
 C_RESET = "\033[0m"

@@ -232,11 +232,24 @@ def main():
 
     pause_step(args.interactive)
 
-    # Attack 4: Unauthenticated Invocation (Zero Token)
-    print(f"\n{C_BOLD}• Attack Vector 4: Unauthenticated Invocation (Missing Token){C_RESET}")
-    log_agent_thought("agent.injected_attacker", "Stripping Authorization headers to test if gateway allows unauthenticated requests.")
-    log_agent_action("agent.injected_attacker", "Calling search_knowledge without any capability token.")
-    send_mcp_tool_call("search_knowledge", {"query": "confidential data"}, token_hex=None, caller="agent.injected_attacker")
+    pause_step(args.interactive)
+
+    # =========================================================================
+    # PHASE 5: DYNAMIC SWARM SCALING (Stateless Ephemeral Subagents)
+    # =========================================================================
+    print(f"\n{C_BOLD}⚡ [PHASE 5] DYNAMIC SWARM SCALING (Stateless Ephemeral Delegation){C_RESET}")
+    log_agent_thought("agent.lead_orchestrator", "Dynamically fanning out task to 5 ephemeral worker subagents with scoped capabilities.")
+    
+    for i in range(1, 6):
+        worker_name = f"agent.worker_{i:02d}"
+        worker_tok = CapabilityToken.from_bytes(root_token.to_bytes())
+        worker_tok.attenuate(
+            allowed_tools=["search_knowledge"],
+            resource_prefix="s3://enterprise/research/public/",
+            read_only=True
+        )
+        w_hex = worker_tok.to_bytes().hex()
+        send_mcp_tool_call("search_knowledge", {"query": f"shard_partition_{i}"}, token_hex=w_hex, caller=worker_name)
 
     # =========================================================================
     # SUMMARY & COMPLETION
