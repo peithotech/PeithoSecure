@@ -36,18 +36,15 @@
 Today, developers give autonomous AI agents **god-mode API keys and raw database credentials**. 
 
 ```
-❌ TRADITIONAL APPROACH (PROBABILISTIC & DANGEROUS)
-User / Attacker ──► [ LLM Model ] ──► Prompt Injection ──► Direct Tool Access ──► 💥 Data Destroyed
-                           ▲
-                  "Guardrail LLM" (Slow, +500ms, easily bypassed with jailbreaks & ciphers)
-```
-
-```
-✅ PEITHO APPROACH (DETERMINISTIC & MATHEMATICAL)
-User / Attacker ──► [ ANY Model ] ──► Tool Call ──► [ 🛡️ PEITHO KERNEL ] ──► Hard Block (403)
-                                                              │
-                                                 Evaluates NIST ML-DSA-44 Token
-                                                 in <50µs (Zero-Allocation CPU Math)
+Model Output (LLM) ──► "Do X" ──► Agent requests X ──► [ 🛡️ PEITHO KERNEL ]
+                                                               │
+                                               "Does this capability authorize X?"
+                                                               │
+                                                ┌──────────────┴──────────────┐
+                                                ▼                             ▼
+                                           YES (Allowed)                 NO (Denied)
+                                                │                             │
+                                        Tool / Database                   Hard Block
 ```
 
 ### Why Peitho is Fundamentally Different:
@@ -223,33 +220,35 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 
 ---
 
-## 💼 Open Core Architecture & Commercial Moat
+## 💼 Open Core Architecture & Commercial Roadmap
+
+> *"Scale is a consequence. Authority is the product."*
 
 ```
-  🟢 COMMUNITY (OPEN SOURCE)                       🏢 ENTERPRISE (COMMERCIAL TIER)
-       One Local Machine                               Thousands of Distributed Agents
+  🟢 COMMUNITY (OPEN SOURCE)                       🏢 ENTERPRISE (COMMERCIAL ROADMAP)
+   "I need to protect my agent."                    "I need to control organizational authority."
                │                                                      │
                ▼                                                      ▼
      ┌───────────────────┐                         ┌─────────────────────────────────────┐
      │  PEITHO KERNEL    │                         │      PEITHO CENTRAL AUTHORITY       │
-     │  + LOCAL DASHBOARD│                         │   Policy • Fleet • SIEM • KMS • SSO │
+     │  + LOCAL DASHBOARD│                         │   Policy • Identity • KMS • SIEM    │
      └─────────┬─────────┘                         └──────────────────┬──────────────────┘
                │                                                      │
         ┌──────┴──────┐                             ┌─────────────────┼─────────────────┐
         ▼             ▼                             ▼                 ▼                 ▼
      Agent A       Agent B                      Cluster A         Cluster B         Cluster C
-   (Local Dev)   (Local Test)                 (1,000 agents)    (5,000 agents)   (10,000 agents)
+   (Local Dev)   (Local Test)                  (Fleet Node)      (Fleet Node)      (Fleet Node)
 ```
 
-| Layer / Feature | 🟢 Community Edition (Apache 2.0) | 🏢 Team & Enterprise Edition |
+| Layer / Feature | 🟢 Community Edition (Apache 2.0) | 🏢 Team & Enterprise Edition (Roadmap) |
 | :--- | :--- | :--- |
-| **Target Audience** | Individual Developers & Local Swarms | Engineering Teams & Enterprise AI Fleets |
-| **Deployment Model** | Single Node / Local Machine (`127.0.0.1:4040`) | Cloud VPC Mesh / Kubernetes Multi-Cluster |
+| **Core Value** | Protecting Individual Agents & Local Swarms | Managing & Auditing Organizational Authority |
+| **Deployment Model** | Single Node / Local Machine (`127.0.0.1:4040`) | Cloud VPC Mesh / Distributed Multi-Cluster |
 | **Cryptographic Kernel** | NIST ML-DSA-44 (FIPS 204) & ML-KEM-768 | NIST ML-DSA-44 + Cloud KMS / Hardware HSM |
 | **Token Verification** | Local $<50\,\mu\text{s}$ CPU Evaluation | Distributed $<50\,\mu\text{s}$ Kernel + Sync Mesh |
 | **Observability** | Local Real-Time Dashboard & Forensic UI | Enterprise SIEM Streaming (Datadog, Splunk, S3) |
 | **Fleet Policy Governance** | Code-Defined Python / TypeScript Tokens | Centralized Organization Policy Engine |
-| **Incident Response** | Local Ephemeral Tombstone Cache | Subtree Instant Revocation Across All Clusters |
+| **Incident Response** | Local Ephemeral Tombstone Cache | Subtree Instant Revocation Across Fleets |
 | **Identity & Access** | Local Keypair Genesis | Enterprise SSO / SAML / SCIM / Organization RBAC |
 | **Compliance Evidence** | Local Test Harness Audit Reports | Cryptographic Side-Effect Audit Trails |
 
