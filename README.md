@@ -171,13 +171,25 @@ When running `peitho dev`, navigating to `http://127.0.0.1:4040` gives you a pur
 
 <div align="center">
 
+![Peitho Live Activity Stream](assets/screenshots/dashboard_live_activity_stream.png)
+
+*Live cryptographic activity stream: monitoring real-time agent tool executions, sub-millisecond latencies, and blocked adversarial prompt injections.*
+
+<br/>
+
+![Peitho Capabilities Delegation Tree](assets/screenshots/dashboard_capabilities_tree.png)
+
+*Live capability delegation tree: dynamic tracking of multi-agent swarm hierarchies and active post-quantum token scopes.*
+
+</div>
+
+<br/>
+
 | Tab | Purpose | What You See |
 | :--- | :--- | :--- |
 | **`Activity Stream`** | Live Observability & Forensics | Real-time event log, latency counters, and granular forensic evaluations displaying exact violated invariant rules. |
 | **`Capabilities & Tokens`** | Topology & Trust Hierarchy | Live parent-child **Capability Delegation Tree**, active token registry, and connected MCP tool boundaries. |
 | **`Security Invariants & System`** | Mathematical Formal Proofs | All 18 formal security invariants ($P-001 \rightarrow P-018$) with test harness mapping and runtime diagnostics. |
-
-</div>
 
 ---
 
