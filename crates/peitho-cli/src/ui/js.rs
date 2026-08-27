@@ -53,13 +53,17 @@ async function fetchOverview() {{
     try {{
         const res = await fetch('/api/v1/overview');
         const data = await res.json();
-        document.getElementById('stat-auth-count').innerText = (data.total_authorizations || 1284).toLocaleString();
-        document.getElementById('stat-auth-sub').innerText = `${{(data.total_allowed || 1237).toLocaleString()}} ALLOW`;
-        document.getElementById('stat-denied-count').innerText = (data.total_denied || 47).toLocaleString();
-        document.getElementById('stat-denied-sub').innerText = `${{(data.total_denied || 47).toLocaleString()}} BLOCKED`;
+        const totalAuth = data.total_authorizations || 0;
+        const totalAllowed = data.total_allowed || 0;
+        const totalDenied = data.total_denied || 0;
+        document.getElementById('stat-auth-count').innerText = totalAuth.toLocaleString();
+        document.getElementById('stat-auth-sub').innerText = `${{totalAllowed.toLocaleString()}} ALLOW`;
+        document.getElementById('stat-denied-count').innerText = totalDenied.toLocaleString();
+        document.getElementById('stat-denied-sub').innerText = `${{totalDenied.toLocaleString()}} BLOCKED`;
         if (data.observed_latency) {{
-            document.getElementById('stat-latency-val').innerText = `${{data.observed_latency.p50_micros}} µs`;
-            document.getElementById('stat-latency-sub').innerText = `p50 · ${{data.observed_latency.samples || 1284}} evaluations (Local runtime)`;
+            const p50 = data.observed_latency.p50_micros;
+            document.getElementById('stat-latency-val').innerText = p50 > 0 ? `${{p50}} µs` : '—';
+            document.getElementById('stat-latency-sub').innerText = totalAuth > 0 ? `p50 · ${{totalAuth.toLocaleString()}} evaluations` : 'Local runtime (Zero I/O)';
         }}
         const graphEl = document.getElementById('overview-authority-graph');
         if (graphEl) {{

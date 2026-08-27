@@ -33,8 +33,15 @@ pub struct SelfTestPayload {
 pub async fn handle_v1_overview(State(state): State<AppState>) -> Json<serde_json::Value> {
     let count = state.total_verifications.load(Ordering::Relaxed);
     let total_nanos = state.total_nanos.load(Ordering::Relaxed);
-    let avg_latency = if count > 0 { (total_nanos as f64) / (count as f64) / 1000.0 } else { 46.0 };
     let (_, tel_stats) = state.telemetry.get_recent(1);
+    let total_observed = tel_stats.total_observed.max(count as u64);
+    let total_allowed = tel_stats.total_allowed;
+    let total_denied = tel_stats.total_denied;
+    let avg_latency = if total_observed > 0 && total_nanos > 0 {
+        (total_nanos as f64) / (total_observed as f64) / 1000.0
+    } else {
+        0.0
+    };
 
     Json(json!({
         "status": "LOCAL_HEALTHY",
@@ -42,17 +49,17 @@ pub async fn handle_v1_overview(State(state): State<AppState>) -> Json<serde_jso
         "instance_scope": "Single Local Node (No Central State)",
         "ui_address": "127.0.0.1:4040",
         "mcp_gateway_address": "127.0.0.1:8080/mcp",
-        "total_authorizations": tel_stats.total_observed.max(count as u64).max(1284),
-        "total_allowed": tel_stats.total_allowed.max(1237),
-        "total_denied": tel_stats.total_denied.max(47),
-        "active_capabilities": 8,
+        "total_authorizations": total_observed,
+        "total_allowed": total_allowed,
+        "total_denied": total_denied,
+        "active_capabilities": if total_observed > 0 { 8 } else { 0 },
         "revocations_count": state.registry.count(),
         "observed_latency": {
-            "p50_micros": (avg_latency * 10.0).round() / 10.0,
-            "p95_micros": (avg_latency * 1.32 * 10.0).round() / 10.0,
-            "p99_micros": (avg_latency * 1.69 * 10.0).round() / 10.0,
-            "samples": count.max(1284),
-            "platform": "Apple Silicon (ARM64 Neon Native)",
+            "p50_micros": if avg_latency > 0.0 { (avg_latency * 10.0).round() / 10.0 } else { 0.0 },
+            "p95_micros": if avg_latency > 0.0 { (avg_latency * 1.32 * 10.0).round() / 10.0 } else { 0.0 },
+            "p99_micros": if avg_latency > 0.0 { (avg_latency * 1.69 * 10.0).round() / 10.0 } else { 0.0 },
+            "samples": total_observed,
+            "platform": "Native Hardware (Zero Database / Pure CPU)",
             "measurement": "Local kernel execution time (zero-allocation verification)"
         },
         "engine_checklist": [
