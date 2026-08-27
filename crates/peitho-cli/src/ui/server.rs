@@ -79,8 +79,17 @@ async fn handle_mcp_get() -> impl IntoResponse {
 
 fn extract_token(headers: &HeaderMap) -> Option<CapabilityToken> {
     headers.get("X-Peitho-Capability")
+        .or_else(|| headers.get("Authorization"))
+        .or_else(|| headers.get("authorization"))
         .and_then(|v| v.to_str().ok())
-        .and_then(|s| hex::decode(s.trim()).ok())
+        .and_then(|s| {
+            let token_str = if let Some(stripped) = s.strip_prefix("Bearer ") {
+                stripped.trim()
+            } else {
+                s.trim()
+            };
+            hex::decode(token_str).ok()
+        })
         .and_then(|b| decode_token(&b).ok())
 }
 

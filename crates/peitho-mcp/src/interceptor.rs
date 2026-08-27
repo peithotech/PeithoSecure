@@ -104,6 +104,15 @@ impl McpInterceptor {
                 .map(|s| s.to_string())
         });
 
+        let principal_display = request.params.as_ref().and_then(|p| {
+            p.get("principal")
+                .or_else(|| p.get("agent"))
+                .or_else(|| p.get("caller"))
+                .or_else(|| p.get("arguments").and_then(|a| {
+                    a.get("principal").or_else(|| a.get("agent")).or_else(|| a.get("caller"))
+                }))
+        }).and_then(|v| v.as_str()).unwrap_or("agent:local").to_string();
+
         let ctx = InvocationContext {
             tool_name,
             resource_uri,
@@ -137,7 +146,7 @@ impl McpInterceptor {
             let trace = DecisionTrace {
                 trace_id: format!("trace_{}", now_secs),
                 timestamp_micros: now_secs * 1_000_000,
-                principal_display: "agent:local".to_string(),
+                principal_display,
                 tool_name: ctx.tool_name.clone().unwrap_or_else(|| "unknown_tool".into()),
                 resource_display: ctx.resource_uri.clone().unwrap_or_else(|| "*".into()),
                 outcome,
