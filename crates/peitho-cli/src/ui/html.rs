@@ -50,7 +50,7 @@ pub fn get_page_html() -> String {
     </header>
 
     <!-- Nav Tabs (Simplified 3-Tab Architecture) -->
-    <nav class="border-b-subtle bg-surface px-6 flex space-x-1 text-xs mono">
+    <nav class="border-b-subtle bg-surface px-6 flex space-x-1 text-xs mono sticky top-[57px] z-40">
         <button id="tab-btn-activity" onclick="switchTab('activity')" class="tab-btn active">Activity Stream</button>
         <button id="tab-btn-capabilities" onclick="switchTab('capabilities')" class="tab-btn">Capabilities & Tokens</button>
         <button id="tab-btn-invariants" onclick="switchTab('invariants')" class="tab-btn">Security Invariants & System</button>
