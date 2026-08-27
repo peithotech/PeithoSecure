@@ -60,9 +60,15 @@ async fn test_v1_system_endpoint() {
 async fn test_v1_decisions_endpoint() {
     let state = create_test_state();
     let filter = FilterQuery { tool: None, outcome: None };
-    let Json(json) = handle_v1_decisions(State(state), Query(filter)).await;
+    let Json(json) = handle_v1_decisions(State(state.clone()), Query(filter.clone())).await;
     assert!(json.is_array());
-    assert!(!json.as_array().unwrap().is_empty());
+    assert!(json.as_array().unwrap().is_empty(), "Fresh state must be pure zero-state");
+
+    // After self-test, decision trace is dynamically recorded
+    let payload = SelfTestPayload { scenario: "valid_authorization".to_string() };
+    let _ = handle_v1_self_test(State(state.clone()), Json(payload)).await;
+    let Json(updated) = handle_v1_decisions(State(state), Query(filter)).await;
+    assert_eq!(updated.as_array().unwrap().len(), 1);
 }
 
 #[tokio::test]

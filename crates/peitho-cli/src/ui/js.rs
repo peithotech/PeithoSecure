@@ -117,7 +117,12 @@ function renderActivityTable() {{
     const tbody = document.getElementById('activity-tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    const safeIdx = activeDecisions.length > 0 ? Math.min(selectedActivityIndex, activeDecisions.length - 1) : 0;
+    if (activeDecisions.length === 0) {{
+        tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-dim mono">Waiting for agent MCP requests on 127.0.0.1:4040/mcp ...<br><span class="text-[11px] text-sub mt-2 inline-block">Click "⚡ Simulate Allow" or run your agent swarm to generate live cryptographic traces</span></td></tr>';
+        renderActivityDetail(null);
+        return;
+    }}
+    const safeIdx = Math.min(selectedActivityIndex, activeDecisions.length - 1);
     activeDecisions.forEach((t, idx) => {{
         const tr = document.createElement('tr');
         tr.id = `act-row-${{idx}}`;
@@ -139,11 +144,16 @@ function renderActivityTable() {{
         `;
         tbody.appendChild(tr);
     }});
+    renderActivityDetail(activeDecisions[safeIdx]);
 }}
 
 function renderActivityDetail(trace) {{
     const container = document.getElementById('activity-detail-container');
     if (!container) return;
+    if (!trace) {{
+        container.innerHTML = '<div class="card-box text-dim text-center py-10 mono text-xs">Select an event from the stream to view cryptographic forensic trace and invariant evaluation checklist.</div>';
+        return;
+    }}
     const isAllow = trace.outcome === 'ALLOW';
     container.innerHTML = `
         <div class="space-y-3">

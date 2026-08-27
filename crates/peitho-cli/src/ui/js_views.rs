@@ -3,48 +3,44 @@
 /// Return the JavaScript snippet for specialized view rendering.
 pub fn get_js_views() -> &'static str {
     r#"
-const capabilityData = {
-    root: { subject: 'ROOT (Trust Anchor)', parent: 'None', authority: 'FULL', tools: 'search_documents, read_document, manage_secrets', resource: '*', expires: '31536000s', depth: '0 / 50', monotonic: '✓ Genesis', sig: '✓ ML-DSA-44 (FIPS 204)' },
-    orchestrator: { subject: 'agent.orchestrator', parent: 'ROOT', authority: 'DELEGATE', tools: 'search_documents, read_document, manage_secrets', resource: 's3://enterprise/*', expires: '3600s', depth: '1 / 50', monotonic: '✓ Monotonic', sig: '✓ ML-DSA-44' },
-    researcher: { subject: 'agent.researcher', parent: 'orchestrator', authority: 'READ', tools: 'search_documents, read_document', resource: 's3://knowledge/public/*', expires: '12.4s', depth: '2 / 50', monotonic: '✓ Monotonic', sig: '✓ SwarmSpeed' },
-    finance: { subject: 'agent.finance', parent: 'orchestrator', authority: 'QUERY', tools: 'query_reports', resource: 'postgres://reports/*', expires: '60s', depth: '2 / 50', monotonic: '✓ Monotonic', sig: '✓ SwarmSpeed' }
-};
-
 function renderCapabilitiesTree() {
     const list = document.getElementById('tree-nodes-list');
     if (!list) return;
-    list.innerHTML = `
-        <div onclick="selectCap('root')" class="tree-node selected mono" id="node-root">👑 ROOT (Trust Anchor)</div>
-        <div class="ml-4 border-l-subtle pl-3 space-y-2 mt-2">
-            <div onclick="selectCap('orchestrator')" class="tree-node mono" id="node-orchestrator">├── Agent: orchestrator</div>
-            <div class="ml-4 border-l-subtle pl-3 space-y-2 mt-2">
-                <div onclick="selectCap('researcher')" class="tree-node mono" id="node-researcher">├── Agent: researcher (s3://knowledge/public/*)</div>
-                <div onclick="selectCap('finance')" class="tree-node mono" id="node-finance">└── Agent: finance (postgres://reports/*)</div>
-            </div>
-        </div>
-    `;
-    selectCap('researcher');
+    if (activeDecisions.length === 0) {
+        list.innerHTML = `<div class="p-6 text-center text-dim mono">No active capability tree discovered yet.<br><span class="text-[11px] text-sub mt-1 inline-block">Waiting for agent MCP requests on 127.0.0.1:4040/mcp</span></div>`;
+        const panel = document.getElementById('tree-detail-panel');
+        if (panel) panel.innerHTML = `<div class="card-box text-dim text-center py-6">Select an agent node or token to inspect cryptographic delegation constraints.</div>`;
+        return;
+    }
+    const principals = [...new Set(activeDecisions.map(d => d.principal_display))];
+    let html = `<div onclick="selectCapNode('ROOT')" class="tree-node selected mono" id="node-ROOT">👑 ROOT (Trust Anchor ML-DSA-44)</div><div class="ml-4 border-l-subtle pl-3 space-y-2 mt-2">`;
+    principals.forEach((p, idx) => {
+        const isLast = idx === principals.length - 1;
+        html += `<div onclick="selectCapNode('${p}')" class="tree-node mono" id="node-${p}">${isLast ? '└──' : '├──'} Agent: ${p}</div>`;
+    });
+    html += `</div>`;
+    list.innerHTML = html;
+    if (principals.length > 0) selectCapNode(principals[0]);
 }
 
-function selectCap(key) {
+function selectCapNode(name) {
     document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('selected'));
-    const n = document.getElementById(`node-${key}`);
+    const n = document.getElementById(`node-${name}`);
     if (n) n.classList.add('selected');
-    const d = capabilityData[key];
     const panel = document.getElementById('tree-detail-panel');
-    if (!panel || !d) return;
+    if (!panel) return;
+    const isRoot = name === 'ROOT';
+    const related = activeDecisions.filter(d => d.principal_display === name);
+    const tools = [...new Set(related.map(d => d.tool_name))].join(', ') || 'All Delegated Tools';
     panel.innerHTML = `
         <div class="card-box space-y-2 text-xs">
-            <div class="font-bold text-main border-b-subtle pb-1">CAPABILITY: ${d.subject}</div>
-            <div><span class="text-dim">Subject:</span> <span class="text-main font-bold">${d.subject}</span></div>
-            <div><span class="text-dim">Parent:</span> <span class="text-main">${d.parent}</span></div>
-            <div><span class="text-dim">Authority:</span> <span class="text-main font-bold">${d.authority}</span></div>
-            <div><span class="text-dim">Tools:</span> <span class="text-main font-bold">${d.tools}</span></div>
-            <div><span class="text-dim">Resource:</span> <span class="text-main font-mono">${d.resource}</span></div>
-            <div><span class="text-dim">Expires:</span> <span class="text-main font-bold">${d.expires}</span></div>
-            <div><span class="text-dim">Delegation Depth:</span> <span class="text-main font-bold">${d.depth}</span></div>
-            <div><span class="text-dim">Attenuation:</span> <span class="text-allow font-bold">${d.monotonic}</span></div>
-            <div><span class="text-dim">Signature:</span> <span class="text-allow font-bold">${d.sig}</span></div>
+            <div class="font-bold text-main border-b-subtle pb-1">CAPABILITY: ${name}</div>
+            <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">${name}</span></div>
+            <div><span class="text-dim">Parent:</span> <span class="text-main">${isRoot ? 'None (Genesis Root)' : 'ROOT (Trust Anchor)'}</span></div>
+            <div><span class="text-dim">Discovered Tools:</span> <span class="text-main font-bold">${tools}</span></div>
+            <div><span class="text-dim">Cryptographic Algorithm:</span> <span class="text-allow font-bold">NIST ML-DSA-44 (FIPS 204)</span></div>
+            <div><span class="text-dim">Attenuation Status:</span> <span class="text-allow font-bold">✓ Monotonic Verified</span></div>
+            <div><span class="text-dim">Observed Calls:</span> <span class="text-main font-bold">${related.length} evaluations</span></div>
         </div>
     `;
 }
@@ -52,39 +48,36 @@ function selectCap(key) {
 function renderTokens() {
     const tbl = document.getElementById('tokens-table-container');
     if (!tbl) return;
-    tbl.innerHTML = `
-        <table class="table-mono w-full text-left mono">
-            <thead><tr><th>ID</th><th>SUBJECT</th><th>STATUS</th><th>EXPIRES</th></tr></thead>
-            <tbody>
-                <tr id="tok-row-researcher" class="cursor-pointer selected" onclick="selectToken('researcher')"><td class="py-2 text-main">a91f...44b1</td><td class="text-main">researcher</td><td><span class="badge-allow">ACTIVE</span></td><td class="text-dim">11.2s</td></tr>
-                <tr id="tok-row-worker" class="cursor-pointer" onclick="selectToken('worker')"><td class="py-2 text-main">b72c...99a0</td><td class="text-main">worker</td><td><span class="badge-deny">REVOKED</span></td><td class="text-dim">—</td></tr>
-                <tr id="tok-row-analyst" class="cursor-pointer" onclick="selectToken('analyst')"><td class="py-2 text-main">c18a...ee12</td><td class="text-main">analyst</td><td><span class="badge-outline">BURNED</span></td><td class="text-dim">—</td></tr>
-            </tbody>
-        </table>
-    `;
-    selectToken('researcher');
+    if (activeDecisions.length === 0) {
+        tbl.innerHTML = `<div class="p-6 text-center text-dim mono">No capability tokens registered in local memory.<br><span class="text-[11px] text-sub mt-1 inline-block">Issue tokens via Python/TypeScript SDK or click '⚡ Simulate Allow'</span></div>`;
+        return;
+    }
+    let html = `<table class="table-mono w-full text-left mono"><thead><tr><th>TRACE ID</th><th>PRINCIPAL</th><th>STATUS</th><th>LATENCY</th></tr></thead><tbody>`;
+    activeDecisions.slice(0, 8).forEach((d, idx) => {
+        const isAllow = d.outcome === 'ALLOW';
+        html += `<tr id="tok-row-${idx}" class="cursor-pointer ${idx === 0 ? 'selected' : ''}" onclick="selectTokenRow(${idx})"><td class="py-2 text-main">${d.trace_id.substring(0, 12)}</td><td class="text-main">${d.principal_display}</td><td><span class="${isAllow ? 'badge-allow' : 'badge-deny'}">${d.outcome}</span></td><td class="text-dim">${d.latency_micros}µs</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    tbl.innerHTML = html;
 }
 
-function selectToken(key) {
+function selectTokenRow(idx) {
     document.querySelectorAll('#tokens-table-container tr').forEach(r => r.classList.remove('selected'));
-    const r = document.getElementById(`tok-row-${key}`);
+    const r = document.getElementById(`tok-row-${idx}`);
     if (r) r.classList.add('selected');
+    const d = activeDecisions[idx];
     const box = document.getElementById('tree-detail-panel');
-    if (!box) return;
+    if (!box || !d) return;
+    const isAllow = d.outcome === 'ALLOW';
     box.innerHTML = `
         <div class="card-box space-y-2 text-xs">
-            <div class="font-bold text-main border-b-subtle pb-1">TOKEN REGISTRY: agent.${key}</div>
-            <div><span class="text-dim">Subject:</span> <span class="text-main font-bold">agent.${key}</span></div>
-            <div><span class="text-dim">Parent:</span> <span class="text-main">orchestrator</span></div>
-            <div class="space-y-1 pt-1 border-t-subtle">
-                <span class="text-dim font-bold">Cryptographic Caveats:</span>
-                <div class="text-sub">✓ tool = search_documents, read_document</div>
-                <div class="text-sub">✓ action = read</div>
-                <div class="text-sub">✓ prefix = s3://knowledge/public/</div>
-                <div class="text-sub">✓ budget = 100 µ-units</div>
-            </div>
-            <div><span class="text-dim">Nonce:</span> <span class="text-main font-mono">7f9a88c2...</span></div>
-            <div><span class="text-dim">State:</span> <span class="${key === 'worker' ? 'badge-deny' : 'badge-allow'}">${key === 'worker' ? 'REVOKED' : (key === 'analyst' ? 'BURNED' : 'ACTIVE')}</span></div>
+            <div class="font-bold text-main border-b-subtle pb-1">TOKEN TRACE: ${d.trace_id}</div>
+            <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">${d.principal_display}</span></div>
+            <div><span class="text-dim">Invoked Tool:</span> <span class="text-main font-bold">${d.tool_name}</span></div>
+            <div><span class="text-dim">Target Resource:</span> <span class="text-main font-mono">${d.resource_display}</span></div>
+            <div><span class="text-dim">Evaluation Outcome:</span> <span class="${isAllow ? 'badge-allow' : 'badge-deny'}">${d.outcome}</span></div>
+            <div><span class="text-dim">Latency:</span> <span class="text-main font-bold">${d.latency_micros} µs</span></div>
+            <div class="text-dim pt-2 border-t-subtle">${d.failed_invariant ? 'Violated Invariant: ' + d.failed_invariant : 'Cryptographic proof: Valid monotonic post-quantum chain'}</div>
         </div>
     `;
 }
@@ -92,15 +85,25 @@ function selectToken(key) {
 function renderTools() {
     const list = document.getElementById('tools-list-container');
     if (!list) return;
-    list.innerHTML = `
-        <div id="tool-row-search_documents" onclick="selectTool('search_documents', 'ALLOW')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">search_documents</span><span class="badge-allow">ALLOW 892</span></div>
-        <div id="tool-row-read_document" onclick="selectTool('read_document', 'ALLOW')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">read_document</span><span class="badge-allow">ALLOW 641</span></div>
-        <div id="tool-row-manage_secrets" onclick="selectTool('manage_secrets', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">manage_secrets</span><span class="badge-deny">DENY 31</span></div>
-        <div id="tool-row-execute_wire_transfer" onclick="selectTool('execute_wire_transfer', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">execute_wire_transfer</span><span class="badge-deny">DENY 12</span></div>
-    `;
+    if (activeDecisions.length === 0) {
+        list.innerHTML = `<div class="p-6 text-center text-dim mono">No MCP tools observed yet.<br><span class="text-[11px] text-sub mt-1 inline-block">Gateway listening on 127.0.0.1:4040/mcp</span></div>`;
+        return;
+    }
+    const toolMap = {};
+    activeDecisions.forEach(d => {
+        if (!toolMap[d.tool_name]) toolMap[d.tool_name] = { allows: 0, denies: 0 };
+        if (d.outcome === 'ALLOW') toolMap[d.tool_name].allows++;
+        else toolMap[d.tool_name].denies++;
+    });
+    let html = '';
+    Object.keys(toolMap).forEach(tool => {
+        const stats = toolMap[tool];
+        html += `<div id="tool-row-${tool}" onclick="selectToolItem('${tool}', ${stats.allows}, ${stats.denies})" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between items-center"><span class="font-bold text-main">${tool}</span><div class="flex gap-2">${stats.allows > 0 ? `<span class="badge-allow">${stats.allows} ALLOW</span>` : ''}${stats.denies > 0 ? `<span class="badge-deny">${stats.denies} DENY</span>` : ''}</div></div>`;
+    });
+    list.innerHTML = html;
 }
 
-function selectTool(name, status) {
+function selectToolItem(name, allows, denies) {
     document.querySelectorAll('#tools-list-container > div').forEach(d => d.classList.remove('selected', 'border-strong'));
     const row = document.getElementById(`tool-row-${name}`);
     if (row) row.classList.add('selected', 'border-strong');
@@ -108,11 +111,12 @@ function selectTool(name, status) {
     if (!box) return;
     box.innerHTML = `
         <div class="card-box space-y-2 text-xs">
-            <div class="font-bold text-main border-b-subtle pb-1">TOOL INTERCEPTION: ${name}</div>
-            <div><span class="text-dim">Required Capability:</span> <span class="text-main font-bold">capability.${name}</span></div>
-            <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">agent.researcher</span></div>
-            <div><span class="text-dim">Enforcement Result:</span> <span class="${status === 'ALLOW' ? 'badge-allow' : 'badge-deny'}">${status} ${status === 'DENY' ? '/ P-005 Tool Scope' : ''}</span></div>
-            <div class="text-dim pt-2 border-t-subtle">Interception reason: ${status === 'ALLOW' ? 'Agent holds valid cryptographic proof and non-revoked delegation token.' : 'Agent lacks signed delegation for this tool boundary.'}</div>
+            <div class="font-bold text-main border-b-subtle pb-1">CONNECTED TOOL: ${name}</div>
+            <div><span class="text-dim">Tool Identifier:</span> <span class="text-main font-bold">${name}</span></div>
+            <div><span class="text-dim">Allowed Calls:</span> <span class="text-allow font-bold">${allows}</span></div>
+            <div><span class="text-dim">Denied Violations:</span> <span class="text-deny font-bold">${denies}</span></div>
+            <div><span class="text-dim">Enforcement Engine:</span> <span class="text-main font-bold">Peitho MCP Interceptor</span></div>
+            <div class="text-dim pt-2 border-t-subtle">Real-time status: Active on local MCP Gateway</div>
         </div>
     `;
 }
