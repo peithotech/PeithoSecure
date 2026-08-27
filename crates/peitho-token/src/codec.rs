@@ -1,26 +1,39 @@
 //! High-efficiency binary serialization and deserialization for capability tokens.
+//! Includes PEIT wire magic bytes and format versioning.
 
 use postcard::{from_bytes, to_allocvec};
-
 use crate::error::TokenError;
 use crate::types::CapabilityToken;
 
 /// Maximum allowable token payload size in bytes (16 KB) to prevent DoS.
 pub const MAX_TOKEN_BYTES: usize = 16 * 1024;
 
-/// Serialize a capability token into compact binary format.
+/// Wire protocol magic header bytes: 'P', 'E', 'I', 'T' (0x50, 0x45, 0x49, 0x54).
+pub const PEITHO_WIRE_MAGIC: [u8; 4] = [0x50, 0x45, 0x49, 0x54];
+
+/// Wire protocol format version 1.
+pub const PEITHO_WIRE_VERSION: u8 = 1;
+
+/// Total header prefix size in bytes.
+pub const PEITHO_HEADER_LEN: usize = 5;
+
+/// Serialize a capability token into compact binary format with PEIT wire header.
 pub fn encode_token(token: &CapabilityToken) -> Result<Vec<u8>, TokenError> {
-    let bytes = to_allocvec(token).map_err(|e| TokenError::CodecError(e.to_string()))?;
-    if bytes.len() > MAX_TOKEN_BYTES {
+    let payload = to_allocvec(token).map_err(|e| TokenError::CodecError(e.to_string()))?;
+    if payload.len() + PEITHO_HEADER_LEN > MAX_TOKEN_BYTES {
         return Err(TokenError::OversizedToken {
-            actual: bytes.len(),
+            actual: payload.len() + PEITHO_HEADER_LEN,
             max: MAX_TOKEN_BYTES,
         });
     }
+    let mut bytes = Vec::with_capacity(PEITHO_HEADER_LEN + payload.len());
+    bytes.extend_from_slice(&PEITHO_WIRE_MAGIC);
+    bytes.push(PEITHO_WIRE_VERSION);
+    bytes.extend_from_slice(&payload);
     Ok(bytes)
 }
 
-/// Deserialize a capability token from binary format with size checks.
+/// Deserialize a capability token from binary format with PEIT wire header validation.
 pub fn decode_token(bytes: &[u8]) -> Result<CapabilityToken, TokenError> {
     if bytes.len() > MAX_TOKEN_BYTES {
         return Err(TokenError::OversizedToken {
@@ -28,5 +41,16 @@ pub fn decode_token(bytes: &[u8]) -> Result<CapabilityToken, TokenError> {
             max: MAX_TOKEN_BYTES,
         });
     }
+    if bytes.len() >= PEITHO_HEADER_LEN && bytes[..4] == PEITHO_WIRE_MAGIC {
+        if bytes[4] != PEITHO_WIRE_VERSION {
+            return Err(TokenError::CodecError(format!(
+                "unsupported Peitho wire version: {}",
+                bytes[4]
+            )));
+        }
+        return from_bytes(&bytes[PEITHO_HEADER_LEN..])
+            .map_err(|e| TokenError::CodecError(e.to_string()));
+    }
+    // Fallback for raw postcard payloads
     from_bytes(bytes).map_err(|e| TokenError::CodecError(e.to_string()))
 }

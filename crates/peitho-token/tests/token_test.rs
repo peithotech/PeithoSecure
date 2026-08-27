@@ -118,3 +118,27 @@ fn test_swarm_speed_caveat_and_monotonicity_enforcement() {
     let decoded = decode_token(&encoded).expect("decode");
     assert_eq!(token, decoded);
 }
+
+#[test]
+fn test_peitho_wire_format_magic_header() {
+    let (root_pk, root_sk) = generate_dsa_keypair().expect("root keygen");
+    let token_id = "magic-token-003".to_string();
+    let root_caveats = vec![Caveat::ReadOnly];
+    let root_digest = compute_root_commitment(&token_id, CryptoProfile::SwarmSpeed, &root_caveats).expect("commitment");
+    let root_sig = peitho_core::sign_message(&root_sk, &root_digest).expect("sign");
+
+    let token = CapabilityToken {
+        token_id,
+        profile: CryptoProfile::SwarmSpeed,
+        root_issuer_pk: root_pk,
+        root_caveats,
+        root_signature: root_sig,
+        delegations: vec![],
+    };
+
+    let encoded = encode_token(&token).expect("encode");
+    assert_eq!(&encoded[..4], b"PEIT", "Wire format must start with PEIT magic bytes");
+    assert_eq!(encoded[4], 1, "Wire format version must be 1");
+    let decoded = decode_token(&encoded).expect("decode");
+    assert_eq!(token, decoded);
+}
