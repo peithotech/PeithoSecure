@@ -49,7 +49,7 @@ function renderTokens() {
     const tbl = document.getElementById('tokens-table-container');
     if (!tbl) return;
     if (activeDecisions.length === 0) {
-        tbl.innerHTML = `<div class="p-6 text-center text-dim mono">No capability tokens registered in local memory.<br><span class="text-[11px] text-sub mt-1 inline-block">Issue tokens via Python/TypeScript SDK or click '⚡ Simulate Allow'</span></div>`;
+        tbl.innerHTML = `<div class="p-6 text-center text-dim mono">No capability tokens registered in local memory.<br><span class="text-[11px] text-sub mt-1 inline-block">Tokens will appear automatically as agents authenticate via MCP Gateway</span></div>`;
         return;
     }
     let html = `<table class="table-mono w-full text-left mono"><thead><tr><th>TRACE ID</th><th>PRINCIPAL</th><th>STATUS</th><th>LATENCY</th></tr></thead><tbody>`;
