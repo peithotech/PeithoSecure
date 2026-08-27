@@ -67,6 +67,16 @@ async fn handle_index() -> (HeaderMap, Html<String>) {
     (headers, Html(get_page_html()))
 }
 
+async fn handle_mcp_get() -> impl IntoResponse {
+    Json(json!({
+        "status": "PEITHO_MCP_GATEWAY_ACTIVE",
+        "protocol": "Streamable HTTP (JSON-RPC 2.0)",
+        "message": "Peitho MCP Security Gateway is live and accepting POST requests.",
+        "usage": "POST tool calls with X-Peitho-Capability header",
+        "dashboard_url": "http://127.0.0.1:4040"
+    }))
+}
+
 fn extract_token(headers: &HeaderMap) -> Option<CapabilityToken> {
     headers.get("X-Peitho-Capability")
         .and_then(|v| v.to_str().ok())
@@ -167,7 +177,7 @@ pub async fn start_ui_server(port: u16) -> Result<()> {
 
     let app = Router::new()
         .route("/", get(handle_index))
-        .route("/mcp", post(handle_mcp_post))
+        .route("/mcp", get(handle_mcp_get).post(handle_mcp_post))
         .route("/api/v1/overview", get(handle_v1_overview))
         .route("/api/v1/decisions", get(handle_v1_decisions))
         .route("/api/v1/invariants", get(handle_v1_invariants))
