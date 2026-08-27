@@ -69,15 +69,15 @@ function selectToken(key) {
     document.querySelectorAll('#tokens-table-container tr').forEach(r => r.classList.remove('selected'));
     const r = document.getElementById(`tok-row-${key}`);
     if (r) r.classList.add('selected');
-    const box = document.getElementById('selected-token-container');
+    const box = document.getElementById('tree-detail-panel');
     if (!box) return;
     box.innerHTML = `
         <div class="card-box space-y-2 text-xs">
-            <div class="font-bold text-main border-b-subtle pb-1">SELECTED TOKEN: ${key}</div>
+            <div class="font-bold text-main border-b-subtle pb-1">TOKEN REGISTRY: agent.${key}</div>
             <div><span class="text-dim">Subject:</span> <span class="text-main font-bold">agent.${key}</span></div>
             <div><span class="text-dim">Parent:</span> <span class="text-main">orchestrator</span></div>
             <div class="space-y-1 pt-1 border-t-subtle">
-                <span class="text-dim font-bold">Caveats:</span>
+                <span class="text-dim font-bold">Cryptographic Caveats:</span>
                 <div class="text-sub">✓ tool = search_documents, read_document</div>
                 <div class="text-sub">✓ action = read</div>
                 <div class="text-sub">✓ prefix = s3://knowledge/public/</div>
@@ -98,22 +98,21 @@ function renderTools() {
         <div id="tool-row-manage_secrets" onclick="selectTool('manage_secrets', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">manage_secrets</span><span class="badge-deny">DENY 31</span></div>
         <div id="tool-row-execute_wire_transfer" onclick="selectTool('execute_wire_transfer', 'DENY')" class="p-2.5 rounded bg-surface border-subtle hover:border-strong cursor-pointer flex justify-between"><span class="font-bold text-main">execute_wire_transfer</span><span class="badge-deny">DENY 12</span></div>
     `;
-    selectTool('manage_secrets', 'DENY');
 }
 
 function selectTool(name, status) {
     document.querySelectorAll('#tools-list-container > div').forEach(d => d.classList.remove('selected', 'border-strong'));
     const row = document.getElementById(`tool-row-${name}`);
     if (row) row.classList.add('selected', 'border-strong');
-    const box = document.getElementById('tool-detail-container');
+    const box = document.getElementById('tree-detail-panel');
     if (!box) return;
     box.innerHTML = `
         <div class="card-box space-y-2 text-xs">
-            <div class="font-bold text-main border-b-subtle pb-1">TOOL: ${name}</div>
-            <div><span class="text-dim">Required:</span> <span class="text-main font-bold">capability.${name}</span></div>
+            <div class="font-bold text-main border-b-subtle pb-1">TOOL INTERCEPTION: ${name}</div>
+            <div><span class="text-dim">Required Capability:</span> <span class="text-main font-bold">capability.${name}</span></div>
             <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">agent.researcher</span></div>
-            <div><span class="text-dim">Result:</span> <span class="${status === 'ALLOW' ? 'badge-allow' : 'badge-deny'}">${status} ${status === 'DENY' ? '/ P-005 Tool Scope' : ''}</span></div>
-            <div class="text-dim pt-2 border-t-subtle">Interception reason: Agent lacks signed delegation for this tool boundary.</div>
+            <div><span class="text-dim">Enforcement Result:</span> <span class="${status === 'ALLOW' ? 'badge-allow' : 'badge-deny'}">${status} ${status === 'DENY' ? '/ P-005 Tool Scope' : ''}</span></div>
+            <div class="text-dim pt-2 border-t-subtle">Interception reason: ${status === 'ALLOW' ? 'Agent holds valid cryptographic proof and non-revoked delegation token.' : 'Agent lacks signed delegation for this tool boundary.'}</div>
         </div>
     `;
 }
