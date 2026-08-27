@@ -6,7 +6,7 @@ use super::js_views::get_js_views;
 pub fn get_javascript() -> String {
     let views = get_js_views();
     format!(r#"
-let currentTab = 'overview';
+let currentTab = 'activity';
 let currentFilter = 'ALL';
 let activeDecisions = [];
 
@@ -34,19 +34,15 @@ function toggleTheme() {{
 
 function switchTab(tab) {{
     currentTab = tab;
-    ['overview', 'capabilities', 'decisions', 'activity', 'tokens', 'tools', 'invariants', 'system'].forEach(s => {{
+    ['activity', 'capabilities', 'invariants'].forEach(s => {{
         const el = document.getElementById(`sec-${{s}}`);
         const btn = document.getElementById(`tab-btn-${{s}}`);
         if (el) el.classList.toggle('hidden', s !== tab);
         if (btn) btn.classList.toggle('active', s === tab);
     }});
-    if (tab === 'overview') {{ fetchOverview(); fetchDecisions(); }}
-    else if (tab === 'capabilities') renderCapabilitiesTree();
-    else if (tab === 'activity' || tab === 'decisions') fetchDecisions();
-    else if (tab === 'tokens') renderTokens();
-    else if (tab === 'tools') renderTools();
-    else if (tab === 'invariants') fetchInvariants();
-    else if (tab === 'system') fetchSystem();
+    if (tab === 'activity') {{ fetchOverview(); fetchDecisions(); }}
+    else if (tab === 'capabilities') {{ renderCapabilitiesTree(); renderTokens(); renderTools(); }}
+    else if (tab === 'invariants') {{ fetchInvariants(); fetchSystem(); }}
 }}
 
 async function fetchOverview() {{
@@ -221,8 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {{
     fetchDecisions();
     setInterval(applyTimeTheme, 60000);
     setInterval(() => {{
-        if (currentTab === 'overview') {{ fetchOverview(); fetchDecisions(); }}
-        if (currentTab === 'activity' || currentTab === 'decisions') fetchDecisions();
+        if (currentTab === 'activity') {{ fetchOverview(); fetchDecisions(); }}
     }}, 2000);
 }});
 "#)
