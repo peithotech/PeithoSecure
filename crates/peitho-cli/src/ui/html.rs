@@ -90,7 +90,7 @@ pub fn get_page_html() -> String {
                         <h3 class="text-xs font-bold text-main uppercase mono">LIVE AUTHORIZATION ACTIVITY</h3>
                         <span class="text-[10px] text-dim mono">Real-time Stream</span>
                     </div>
-                    <div id="overview-activity-list" class="space-y-3 mono text-xs"></div>
+                    <div id="overview-activity-list" class="space-y-2 mono text-xs scroll-box max-h-[360px]"></div>
                 </div>
 
                 <div class="lg:col-span-5 space-y-6">
@@ -141,7 +141,7 @@ pub fn get_page_html() -> String {
 
         <!-- 4. ACTIVITY STREAM -->
         <section id="sec-activity" class="hidden space-y-4">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <div class="lg:col-span-7 card-box space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b-subtle pb-3">
                         <h3 class="text-xs font-bold text-main uppercase mono">SECURITY EVENT STREAM</h3>
@@ -154,14 +154,14 @@ pub fn get_page_html() -> String {
                             <button onclick="setFilter('EXPIRED')" class="pill-btn" id="filter-btn-EXPIRED">EXPIRED</button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="scroll-box border-subtle rounded">
                         <table class="table-mono w-full text-left mono">
-                            <thead><tr><th>TIME</th><th>RESULT</th><th>PRINCIPAL</th><th>TOOL</th><th>INVARIANT</th></tr></thead>
+                            <thead class="sticky top-0 bg-surface z-10"><tr><th>TIME</th><th>RESULT</th><th>PRINCIPAL</th><th>TOOL</th><th>INVARIANT</th></tr></thead>
                             <tbody id="activity-tbody"></tbody>
                         </table>
                     </div>
                 </div>
-                <div class="lg:col-span-5 card-box space-y-4">
+                <div class="lg:col-span-5 card-box space-y-4 sticky top-6 scroll-box">
                     <h3 class="text-xs font-bold text-main uppercase mono border-b-subtle pb-2">EVENT FORENSICS</h3>
                     <div id="activity-detail-container" class="mono text-xs space-y-3"></div>
                 </div>
@@ -170,12 +170,12 @@ pub fn get_page_html() -> String {
 
         <!-- 5. TOKENS -->
         <section id="sec-tokens" class="hidden space-y-4">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <div class="lg:col-span-7 card-box space-y-4">
                     <h3 class="text-xs font-bold text-main uppercase mono border-b-subtle pb-2">TOKEN REGISTRY</h3>
-                    <div id="tokens-table-container" class="overflow-x-auto"></div>
+                    <div id="tokens-table-container" class="scroll-box"></div>
                 </div>
-                <div class="lg:col-span-5 card-box space-y-4">
+                <div class="lg:col-span-5 card-box space-y-4 sticky top-6 scroll-box">
                     <h3 class="text-xs font-bold text-main uppercase mono border-b-subtle pb-2">SELECTED TOKEN</h3>
                     <div id="selected-token-container" class="mono text-xs space-y-3"></div>
                 </div>

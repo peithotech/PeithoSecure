@@ -225,6 +225,16 @@ body {
     font-weight: 600;
 }
 
+.scroll-box {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.scroll-box::-webkit-scrollbar { width: 5px; height: 5px; }
+.scroll-box::-webkit-scrollbar-track { background: transparent; }
+.scroll-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.scroll-box::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
 [data-theme="dark"] .logo-light { display: none !important; }
 [data-theme="dark"] .logo-dark { display: block !important; }
 [data-theme="light"] .logo-light { display: block !important; }
