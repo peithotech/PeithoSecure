@@ -171,7 +171,7 @@ When running `peitho dev`, navigating to `http://127.0.0.1:4040` gives you a pur
 
 <div align="center">
 
-![Peitho Live Activity Stream](assets/screenshots/dashboard_live_activity_stream.png)
+![Peitho Live Activity Stream](assets/screenshots/dashboard_activity_stream.png)
 
 *Live cryptographic activity stream: monitoring real-time agent tool executions, sub-millisecond latencies, and blocked adversarial prompt injections.*
 
@@ -179,7 +179,7 @@ When running `peitho dev`, navigating to `http://127.0.0.1:4040` gives you a pur
 
 ![Peitho Capabilities Delegation Tree](assets/screenshots/dashboard_capabilities_tree.png)
 
-*Live capability delegation tree: dynamic tracking of multi-agent swarm hierarchies and active post-quantum token scopes.*
+*Live capability delegation tree: dynamic tracking of multi-agent swarm hierarchies, active post-quantum token scopes, and connected MCP tool boundaries.*
 
 </div>
 

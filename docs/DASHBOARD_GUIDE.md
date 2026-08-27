@@ -4,7 +4,7 @@ The Peitho Dashboard (`http://127.0.0.1:4040`) is a **developer security microsc
 
 <div align="center">
 
-![Peitho Live Activity Stream](../assets/screenshots/dashboard_live_activity_stream.png)
+![Peitho Live Activity Stream](../assets/screenshots/dashboard_activity_stream.png)
 
 *Figure 1: Real-time telemetry stream showing 14 authorizations, allowed queries, and blocked prompt injection & DB destruction attempts.*
 
@@ -24,14 +24,6 @@ The dashboard is structured around 3 high-signal developer views:
 ## 1. 📊 Activity Stream (Live Observability & Forensics)
 
 The Activity Stream is the primary real-time monitoring view. It functions like Wireshark for autonomous AI agent tool calls.
-
-<div align="center">
-
-![Peitho Standby State](../assets/screenshots/dashboard_standby_zero_state.png)
-
-*Figure 2: Pristine zero-state awaiting live incoming agent MCP connections.*
-
-</div>
 
 ### Key Elements:
 * **Top Metric Cards**:
@@ -63,7 +55,7 @@ This view visualizes who authorized what and how permissions flowed through the 
 
 ![Peitho Capabilities Delegation Tree](../assets/screenshots/dashboard_capabilities_tree.png)
 
-*Figure 3: Live Capability Delegation Tree mapping dynamic agent swarms under the Genesis Root.*
+*Figure 2: Live Capability Delegation Tree mapping dynamic agent swarms under the Genesis Root.*
 
 </div>
 
@@ -72,6 +64,7 @@ This view visualizes who authorized what and how permissions flowed through the 
   * Visualizes the live hierarchy from Genesis Root down to child and grandchild subagents:
     ```text
     👑 ROOT (Trust Anchor ML-DSA-44)
+    ├── Agent: agent.executive_analyst
     ├── Agent: agent.database_ops
     ├── Agent: agent.injected_attacker
     ├── Agent: agent.quant_modeler
@@ -94,9 +87,15 @@ This view provides transparent mathematical assurance that the local kernel is o
 
 <div align="center">
 
-![Peitho Security Invariants Registry](../assets/screenshots/dashboard_security_invariants.png)
+![Peitho Security Invariants Registry](../assets/screenshots/dashboard_invariants_top.png)
 
-*Figure 4: The 18 formal mathematical invariants ($P-001 \rightarrow P-018$) and hardware crypto runtime health.*
+*Figure 3: Formal Mathematical Security Invariants Registry ($P-001 \rightarrow P-008$).*
+
+<br/>
+
+![Peitho System Runtime Diagnostics](../assets/screenshots/dashboard_invariants_system.png)
+
+*Figure 4: Invariants ($P-013 \rightarrow P-018$) and zero-network, local post-quantum runtime diagnostics.*
 
 </div>
 
