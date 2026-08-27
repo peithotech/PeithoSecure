@@ -43,10 +43,9 @@ pub fn get_page_html() -> String {
             </div>
         </div>
         <div class="flex items-center space-x-2 text-xs mono">
-            <button onclick="runSelfTest('valid_authorization')" class="btn-mono btn-allow">⚡ Valid Test</button>
-            <button onclick="runSelfTest('unauthorized_tool')" class="btn-mono btn-deny">🛡️ Tool Block</button>
-            <button onclick="runSelfTest('resource_traversal')" class="btn-mono btn-deny">🛡️ Traversal Block</button>
-            <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn-mono">🌙 Theme (Auto)</button>
+            <button onclick="runSelfTest('valid_authorization')" class="btn-mono btn-allow">⚡ Simulate Allow</button>
+            <button onclick="runSelfTest('unauthorized_tool')" class="btn-mono btn-deny">🛡️ Simulate Block</button>
+            <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn-mono">🌙 Theme</button>
         </div>
     </header>
 
@@ -87,9 +86,6 @@ pub fn get_page_html() -> String {
                             <button onclick="setFilter('ALL')" class="pill-btn active" id="filter-btn-ALL">ALL</button>
                             <button onclick="setFilter('ALLOW')" class="pill-btn" id="filter-btn-ALLOW">ALLOW</button>
                             <button onclick="setFilter('DENY')" class="pill-btn" id="filter-btn-DENY">DENY</button>
-                            <button onclick="setFilter('REPLAY')" class="pill-btn" id="filter-btn-REPLAY">REPLAY</button>
-                            <button onclick="setFilter('TRAVERSAL')" class="pill-btn" id="filter-btn-TRAVERSAL">TRAVERSAL</button>
-                            <button onclick="setFilter('EXPIRED')" class="pill-btn" id="filter-btn-EXPIRED">EXPIRED</button>
                         </div>
                     </div>
                     <div class="scroll-box border-subtle rounded">

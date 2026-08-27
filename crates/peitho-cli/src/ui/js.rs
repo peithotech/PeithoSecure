@@ -101,7 +101,7 @@ function renderOverviewActivity() {{
 function setFilter(f) {{
     currentFilter = f;
     selectedActivityIndex = 0;
-    ['ALL', 'ALLOW', 'DENY', 'REPLAY', 'TRAVERSAL', 'EXPIRED'].forEach(k => {{
+    ['ALL', 'ALLOW', 'DENY'].forEach(k => {{
         const btn = document.getElementById(`filter-btn-${{k}}`);
         if (btn) btn.classList.toggle('active', k === f);
     }});
