@@ -1,6 +1,10 @@
 /target/
 **/*.rs.bk
 Cargo.lock
+AGENTS.md
+GEMINI.md
+.rules/
+scratch/
 
 __pycache__/
 *.py[cod]

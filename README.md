@@ -8,7 +8,7 @@
 [![Rust: 1.80+](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](https://www.rust-lang.org)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://pypi.org/project/peitho/)
 [![TypeScript: 5.0+](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.npmjs.com/package/@peithosecure/sdk)
-[![NIST FIPS 204](https://img.shields.io/badge/NIST-ML--DSA--44-emerald.svg)](https://csrc.nist.gov/pubs/fips/204/final)
+[![NIST FIPS 204 Spec](https://img.shields.io/badge/NIST-ML--DSA--44_(FIPS_204_Spec)-emerald.svg)](https://csrc.nist.gov/pubs/fips/204/final)
 [![Latency](https://img.shields.io/badge/Latency-%3C50%C2%B5s-brightgreen.svg)]()
 
 <br/>
@@ -251,6 +251,16 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 | **Incident Response** | Local Ephemeral Tombstone Cache | Subtree Instant Revocation Across Fleets |
 | **Identity & Access** | Local Keypair Genesis | Enterprise SSO / SAML / SCIM / Organization RBAC |
 | **Compliance Evidence** | Local Test Harness Audit Reports | Cryptographic Side-Effect Audit Trails |
+
+---
+
+## Security Policy & Audit Disclosure
+
+Peitho implements the mathematical algorithm specifications defined in **NIST FIPS 204 (ML-DSA-44)** and **NIST FIPS 203 (ML-KEM-768)**.
+
+* **Audit Status**: Peitho is under active open-source development and **has not yet undergone a third-party commercial security audit or formal NIST CMVP lab certification**.
+* **Automated Assurance**: The codebase is verified by 43+ automated test suites, including property-based monotonic fuzzing (`proptest`), constant-time tag comparison verification (`subtle`), and differential reference model tests.
+* **Vulnerability Reporting**: If you discover a security vulnerability, please report it privately via `security@peithosecure.com` or through [GitHub Security Advisories](https://github.com/peithotech/PeithoSecure/security/advisories/new). See [SECURITY.md](SECURITY.md) for our full security policy.
 
 ---
 
