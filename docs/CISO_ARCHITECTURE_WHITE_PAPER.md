@@ -72,4 +72,4 @@ When an autonomous agent triggers an unauthorized tool invocation:
 
 ---
 
-*For technical questions or integration assistance, visit [https://github.com/peithosecure/peithosecure](https://github.com/peithosecure/peithosecure).*
+*For technical questions or integration assistance, visit [https://github.com/peithotech/PeithoSecure](https://github.com/peithotech/PeithoSecure).*
