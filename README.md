@@ -6,6 +6,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Rust: 1.80+](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](https://www.rust-lang.org)
+[![CI](https://github.com/peithotech/PeithoSecure/actions/workflows/zero-panic.yml/badge.svg)](https://github.com/peithotech/PeithoSecure/actions/workflows/zero-panic.yml)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://pypi.org/project/peitho/)
 [![TypeScript: 5.0+](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.npmjs.com/package/@peithosecure/sdk)
 [![NIST FIPS 204 Spec](https://img.shields.io/badge/NIST-ML--DSA--44_(FIPS_204_Spec)-emerald.svg)](https://csrc.nist.gov/pubs/fips/204/final)
