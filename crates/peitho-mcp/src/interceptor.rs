@@ -143,9 +143,13 @@ impl McpInterceptor {
                 nonce_freshness: ConstraintState::Pass,
                 downstream_equivalence: ConstraintState::Pass,
             };
+            let now_micros = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.as_micros() as u64)
+                .unwrap_or(0);
             let trace = DecisionTrace {
-                trace_id: format!("trace_{}", now_secs),
-                timestamp_micros: now_secs * 1_000_000,
+                trace_id: format!("tr_{:x}", now_micros),
+                timestamp_micros: now_micros,
                 principal_display,
                 tool_name: ctx.tool_name.clone().unwrap_or_else(|| "unknown_tool".into()),
                 resource_display: ctx.resource_uri.clone().unwrap_or_else(|| "*".into()),

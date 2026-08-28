@@ -53,7 +53,7 @@ async fn test_v1_invariants_endpoint() {
 async fn test_v1_system_endpoint() {
     let Json(json) = handle_v1_system().await;
     assert_eq!(json["runtime"]["architecture"], "aarch64");
-    assert_eq!(json["crypto"]["root"], "ML-DSA-44 (FIPS 204)");
+    assert_eq!(json["crypto"]["root"], "ML-DSA-44 (FIPS 204 Spec)");
 }
 
 #[tokio::test]

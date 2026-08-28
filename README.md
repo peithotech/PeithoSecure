@@ -80,6 +80,12 @@ python3 examples/live_agent_lab/interactive_agent_swarm.py
 ```
 Watch your terminal execute multi-agent prompts and adversarial injection attacks while your browser displays the real-time cryptographic traces!
 
+### 4. Run the Full Security & Property Test Suite
+```bash
+# Run all 43+ test suites (150+ property-based and adversarial test assertions)
+cargo test --workspace --exclude peitho-py
+```
+
 ---
 
 ## Desktop App & IDE Integration
@@ -217,7 +223,7 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 | **P-017** | At-Most-Once Authorization | $\text{Single-use authorization boundary}$ | Test-and-burn atomic verification |
 | **P-018** | Zero Info-Flow Leakage | $\text{InfoFlow}(\text{Req}) \subseteq \text{AllowedDisclosure}$ | Uniform error oracle $(-32001)$ |
 
-*(See [docs/INVARIANTS.md](docs/INVARIANTS.md) for mathematical proofs and property test suites).*
+*Note: Invariants are validated via automated property-based test suites and adversarial fuzzers (10,000+ randomized iterations). They denote property-tested specifications rather than interactive theorem-prover formal verification.*
 
 ---
 

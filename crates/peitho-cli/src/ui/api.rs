@@ -31,12 +31,11 @@ pub struct SelfTestPayload {
 
 /// GET /api/v1/overview
 pub async fn handle_v1_overview(State(state): State<AppState>) -> Json<serde_json::Value> {
-    let count = state.total_verifications.load(Ordering::Relaxed);
     let total_nanos = state.total_nanos.load(Ordering::Relaxed);
     let (_, tel_stats) = state.telemetry.get_recent(1);
-    let total_observed = tel_stats.total_observed.max(count as u64);
     let total_allowed = tel_stats.total_allowed;
     let total_denied = tel_stats.total_denied;
+    let total_observed = total_allowed + total_denied;
     let avg_latency = if total_observed > 0 && total_nanos > 0 {
         (total_nanos as f64) / (total_observed as f64) / 1000.0
     } else {
@@ -126,8 +125,8 @@ pub async fn handle_v1_invariants() -> Json<serde_json::Value> {
 pub async fn handle_v1_system() -> Json<serde_json::Value> {
     Json(json!({
         "runtime": { "platform": "Apple Silicon (ARM64)", "os": "macOS", "architecture": "aarch64" },
-        "crypto": { "root": "ML-DSA-44 (FIPS 204)", "kem": "ML-KEM-768 (FIPS 203)", "profile": "FIPS Standard / SwarmSpeed", "verification_p50": "46.0 µs" },
-        "persistence": { "revocation": "Atomic POSIX (.tmp -> rename)", "nonce_store": "Durable Local In-Memory", "recovery": "Enabled (Fail-Closed Monotonic)" },
+        "crypto": { "root": "ML-DSA-44 (FIPS 204 Spec)", "kem": "ML-KEM-768 (FIPS 203 Spec)", "profile": "FIPS Standard / SwarmSpeed", "verification_p50": "46.0 µs" },
+        "persistence": { "revocation": "Atomic POSIX (.tmp -> rename)", "nonce_store": "Atomic Cache (POSIX Disk Snapshot)", "recovery": "Enabled (Fail-Closed Monotonic)" },
         "network": { "authorization_hot_path": "LOCAL (Zero-Network Latency)", "external_dependency": "NONE (100% Autonomous)" }
     }))
 }

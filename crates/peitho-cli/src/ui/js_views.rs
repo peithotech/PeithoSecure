@@ -38,7 +38,7 @@ function selectCapNode(name) {
             <div><span class="text-dim">Principal:</span> <span class="text-main font-bold">${name}</span></div>
             <div><span class="text-dim">Parent:</span> <span class="text-main">${isRoot ? 'None (Genesis Root)' : 'ROOT (Trust Anchor)'}</span></div>
             <div><span class="text-dim">Discovered Tools:</span> <span class="text-main font-bold">${tools}</span></div>
-            <div><span class="text-dim">Cryptographic Algorithm:</span> <span class="text-allow font-bold">NIST ML-DSA-44 (FIPS 204)</span></div>
+            <div><span class="text-dim">Cryptographic Algorithm:</span> <span class="text-allow font-bold">NIST ML-DSA-44 (FIPS 204 Spec)</span></div>
             <div><span class="text-dim">Attenuation Status:</span> <span class="text-allow font-bold">✓ Monotonic Verified</span></div>
             <div><span class="text-dim">Observed Calls:</span> <span class="text-main font-bold">${related.length} evaluations</span></div>
         </div>
@@ -127,7 +127,7 @@ async function fetchInvariants() {
         const data = await res.json();
         const container = document.getElementById('invariants-grid-container');
         if (!container) return;
-        container.innerHTML = '';
+        container.innerHTML = '<div class="sm:col-span-2 text-[11px] text-dim mb-1">Automated property test assertions & adversarial fuzzers (10,000+ randomized iterations). Not an interactive theorem-prover formal proof.</div>';
         data.invariants.forEach(inv => {
             const card = document.createElement('div');
             card.className = 'card-box space-y-2 hover:border-strong transition';
