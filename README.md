@@ -227,40 +227,6 @@ Peitho enforces 18 mathematically provable invariants across all delegations:
 
 ---
 
-## Open Core Architecture & Commercial Roadmap
-
-> *"Scale is a consequence. Authority is the product."*
-
-```
-  COMMUNITY (OPEN SOURCE)                          ENTERPRISE (COMMERCIAL ROADMAP)
-   "I need to protect my agent."                    "I need to control organizational authority."
-               │                                                      │
-               ▼                                                      ▼
-     ┌───────────────────┐                         ┌─────────────────────────────────────┐
-     │  PEITHO KERNEL    │                         │      PEITHO CENTRAL AUTHORITY       │
-     │  + LOCAL DASHBOARD│                         │   Policy • Identity • KMS • SIEM    │
-     └─────────┬─────────┘                         └──────────────────┬──────────────────┘
-               │                                                      │
-        ┌──────┴──────┐                             ┌─────────────────┼─────────────────┐
-        ▼             ▼                             ▼                 ▼                 ▼
-     Agent A       Agent B                      Cluster A         Cluster B         Cluster C
-   (Local Dev)   (Local Test)                  (Fleet Node)      (Fleet Node)      (Fleet Node)
-```
-
-| Layer / Feature | Community Edition (Apache 2.0) | Team & Enterprise Edition (Roadmap) |
-| :--- | :--- | :--- |
-| **Core Value** | Protecting Individual Agents & Local Swarms | Managing & Auditing Organizational Authority |
-| **Deployment Model** | Single Node / Local Machine (`127.0.0.1:4040`) | Cloud VPC Mesh / Distributed Multi-Cluster |
-| **Cryptographic Kernel** | NIST ML-DSA-44 (FIPS 204) & ML-KEM-768 | NIST ML-DSA-44 + Cloud KMS / Hardware HSM |
-| **Token Verification** | Local $<50\,\mu\text{s}$ CPU Evaluation | Distributed $<50\,\mu\text{s}$ Kernel + Sync Mesh |
-| **Observability** | Local Real-Time Dashboard & Forensic UI | Enterprise SIEM Streaming (Datadog, Splunk, S3) |
-| **Fleet Policy Governance** | Code-Defined Python / TypeScript Tokens | Centralized Organization Policy Engine |
-| **Incident Response** | Local Ephemeral Tombstone Cache | Subtree Instant Revocation Across Fleets |
-| **Identity & Access** | Local Keypair Genesis | Enterprise SSO / SAML / SCIM / Organization RBAC |
-| **Compliance Evidence** | Local Test Harness Audit Reports | Cryptographic Side-Effect Audit Trails |
-
----
-
 ## Security Policy & Audit Disclosure
 
 Peitho implements the mathematical algorithm specifications defined in **NIST FIPS 204 (ML-DSA-44)** and **NIST FIPS 203 (ML-KEM-768)**.
